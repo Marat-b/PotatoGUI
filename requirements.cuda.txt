@@ -1,0 +1,7 @@
+torch==1.10.0 torchvision==0.11.1 torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
+opencv-python
+PyQt5
+python-dotenv
+scipy
+requests
+
