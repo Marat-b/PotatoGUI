@@ -19,7 +19,7 @@ class VideoThread(QThread):
     def run(self):
         # capture from web cam
         self._run_flag = True
-        self.cap = cv2.VideoCapture(1)
+        self.cap = cv2.VideoCapture(0)
         self.im_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.im_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         # self.num_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))

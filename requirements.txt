@@ -1,5 +1,5 @@
 torch==1.10.0
-torchvision=0.11.1
+torchvision==0.11.1
 opencv-python
 PyQt5
 python-dotenv
