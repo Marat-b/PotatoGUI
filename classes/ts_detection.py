@@ -6,6 +6,8 @@ import torch
 # from torch import Tensor
 import numpy as np
 
+from config.config import USE_CUDA
+
 
 class TorchscriptDetection:
     def __init__(self, path_inference, use_cuda=True):
@@ -28,11 +30,18 @@ class TorchscriptDetection:
             out = self.model(
                      torch.as_tensor(image.astype('float32').transpose(2, 0, 1))
             )
-        boxes = out[0].numpy()
-        classes = out[1].numpy()
-        scores = out[3].numpy()
-        # pr_masks = self._do_mask(out, image)
-        pr_masks = out[2].numpy()
+        if USE_CUDA:
+            boxes = out[0].cpu().numpy()
+            classes = out[1].cpu().numpy()
+            scores = out[3].cpu().numpy()
+            # pr_masks = self._do_mask(out, image)
+            pr_masks = out[2].cpu().numpy()
+        else:
+            boxes = out[0].numpy()
+            classes = out[1].numpy()
+            scores = out[3].numpy()
+            # pr_masks = self._do_mask(out, image)
+            pr_masks = out[2].numpy()
         # pr_masks = out.pred_masks.cpu().numpy()
         # pr_masks = pr_masks.astype(np.uint8)
         # pr_masks[pr_masks > 0] = 255
