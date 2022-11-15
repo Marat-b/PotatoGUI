@@ -1,4 +1,6 @@
 import array
+import datetime
+import os
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
@@ -6,6 +8,7 @@ import numpy as np
 import cv2
 import depthai as dai
 
+from config.config import VIDEO_PATH
 from depth.main_stream_depth import Detector
 
 
@@ -16,6 +19,9 @@ class VideoThread(QThread):
         super(VideoThread, self).__init__()
         self._run_flag = True
         self.detector = Detector()
+        self.save_video = False
+        self.video_writer = None
+        self.video_writer_detected = None
 
     def run(self):
         # capture from web cam
@@ -73,6 +79,19 @@ class VideoThread(QThread):
 
         counter = 1
         count = 0
+        # ----------- video writer ________________________________________________________________
+        file_name = os.path.join(VIDEO_PATH, 'raw_video{}.mp4'.format(self._get_ymd()))
+        file_name2 = os.path.join(VIDEO_PATH, 'detected_video{}.mp4'.format(self._get_ymd()))
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        self.video_writer = cv2.VideoWriter(
+            file_name, fourcc,
+            fps, (1280, 720)
+        )
+        self.video_writer_detected = cv2.VideoWriter(
+            file_name2
+            , fourcc, fps,
+            (1280, 720)
+        )
 
         # Connect to device and start pipeline
         with dai.Device(pipeline) as device:
@@ -84,7 +103,7 @@ class VideoThread(QThread):
             rgbWindowName = "rgb"
             depthWindowName = "depth"
 
-            while True:
+            while self._run_flag:
                 latestPacket = {}
                 latestPacket["rgb"] = None
                 latestPacket["disp"] = None
@@ -114,7 +133,8 @@ class VideoThread(QThread):
                     count += 1
                     continue
                 count = 0
-                if latestPacket["rgb"] is not None and latestPacket["rgb"] is not None:
+                # if latestPacket["rgb"] is not None and latestPacket["rgb"] is not None:
+                if frameRgb is not None and frameDisp is not None:
                     ############# testing ####################
                     # cv2.imshow('frameRgb', frameRgb)
                     # cv2.imshow('frameDisp', frameDisp)
@@ -125,9 +145,38 @@ class VideoThread(QThread):
                     frame = cv2.merge((frameRgb, frameDisp))
 
                     image, item_sorted, class_sorted = self.detector.detect(frame)
+                    if self.save_video:
+                        self.video_writer.write(frameRgb)
+                        self.video_writer_detected.write(image)
                     self.change_pixmap_signal.emit(image, item_sorted, class_sorted)
+            if self.video_writer is not None:
+                self.video_writer.release()
+            if self.video_writer_detected is not None:
+                self.video_writer_detected.release()
 
 
     def stop(self):
         """Sets run flag to False and waits for thread to finish"""
         self._run_flag = False
+
+    def start_video(self):
+        self.save_video = True
+
+    def stop_video(self):
+        self.save_video = False
+
+    def _get_ymd(self):
+        now = datetime.datetime.now()
+        year = now.year
+        month = str(now.month)
+        day = str(now.day)
+        hour = str(now.hour)
+        minute = str(now.minute)
+        if len(month) != 2:
+            month = '0' + month
+        if len(day) != 2:
+            day = '0' + day
+        if len(hour) != 2:
+            hour = '0' + hour
+        minute = minute if len(minute) == 2 else '0' + minute
+        return '{}{}{}{}{}'.format(year, month, day, hour, minute)

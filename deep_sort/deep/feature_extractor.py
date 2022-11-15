@@ -6,14 +6,15 @@ import cv2
 from .model import Net
 
 class Extractor(object):
-    def __init__(self, model_path, use_cuda=True):
-        self.net = Net(reid=True)
+    def __init__(self, model_path, use_cuda=True, num_classes=9):
+        self.net = Net(reid=True, num_classes=num_classes)
         self.device = "cuda" if torch.cuda.is_available() and use_cuda else "cpu"
         state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)['net_dict']
         self.net.load_state_dict(state_dict)
         print("Loading weights from {}... Done!".format(model_path))
         self.net.to(self.device)
-        self.size = (64, 128)
+        # self.size = (64, 128)
+        self.size = (128, 128)
         self.norm = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),

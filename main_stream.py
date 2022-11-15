@@ -6,7 +6,7 @@ from classes.entity import Entity
 from classes.identity import Identity
 from classes.mask import Mask
 from classes.ts_detection import TorchscriptDetection
-from config.config import DEEPSORT, DETECTRON2, DISPLAY, USE_CUDA
+from config.config import DEEPSORT, DETECTRON2, DISPLAY, NUM_CLASSES, USE_CUDA
 from deep_sort import DeepSort
 from classes.measurement import Measurement
 
@@ -23,7 +23,7 @@ class Detector(object):
             use_cuda=use_cuda
         )
 
-        self.deepsort = DeepSort(DEEPSORT, use_cuda=use_cuda)
+        self.deepsort = DeepSort(DEEPSORT, max_dist=0.9, min_confidence=0.9, use_cuda=use_cuda, num_classes=NUM_CLASSES)
         self.drawer = Drawer().add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(
             Mask(
             )

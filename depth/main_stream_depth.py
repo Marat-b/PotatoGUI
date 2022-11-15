@@ -25,7 +25,7 @@ class Detector(object):
             use_cuda=use_cuda
         )
 
-        self.deepsort = DeepSort(DEEPSORT, use_cuda=use_cuda)
+        self.deepsort = DeepSort(DEEPSORT, max_dist=0.9, min_confidence=0.9, use_cuda=use_cuda)
         self.drawer = Drawer().add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(
             Mask(
             )

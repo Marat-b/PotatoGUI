@@ -10,11 +10,11 @@ __all__ = ['DeepSort']
 
 
 class DeepSort(object):
-    def __init__(self, model_path, max_dist=0.2, min_confidence=0.5,  use_cuda=True):
+    def __init__(self, model_path, max_dist=0.2, min_confidence=0.5,  use_cuda=True, num_classes=9):
         self.min_confidence = min_confidence
         self.nms_max_overlap = 1.0
 
-        self.extractor = Extractor(model_path, use_cuda=use_cuda)
+        self.extractor = Extractor(model_path, use_cuda=use_cuda, num_classes=num_classes)
 
         max_cosine_distance = max_dist
         nn_budget = 100

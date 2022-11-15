@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtMultimedia import QCameraInfo
-from PyQt5.QtWidgets import QComboBox, QDesktopWidget, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, QMainWindow, \
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QDesktopWidget, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, \
+    QMainWindow, \
     QMessageBox, QPushButton, \
     QSpinBox, QStatusBar, \
     QWidget, \
@@ -28,6 +29,8 @@ class MyWindow(QMainWindow):
         self.classes = {}
         self.sizes = {'big': 0, 'middle': 0, 'small': 0, 'result': 0}
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
+        self.save_video = False
+        self.thread = VideoThread()
 
         cent = QDesktopWidget().availableGeometry().center()  # Finds the center of the screen
         # self.setStyleSheet("background-color: white;")
@@ -139,6 +142,12 @@ class MyWindow(QMainWindow):
         self.widget_direction.addItem('Отъёмка', 1)
         groupbox.layout().addWidget(self.widget_direction, 4, 1)
 
+        #------------- check box -----------------------------
+        self.chk_video = QCheckBox(self)
+        self.chk_video.setText('Запись видео')
+        self.layout.addWidget(self.chk_video, 11, 1)
+        self.chk_video.clicked.connect(self.onVideo)
+
         # Status bar
         self.status = QStatusBar()
         self.status.setStyleSheet("background : lightblue;")  # Setting style sheet to the status bar
@@ -174,6 +183,16 @@ class MyWindow(QMainWindow):
         self.hr.send_request()
         QMessageBox.information(self, 'Информация', 'Данные отправлены на Веб сервер.')
 
+    def onVideo(self):
+        if self.save_video:
+            self.save_video = False
+            self.thread.stop_video()
+            print('Stop video')
+        else:
+            self.save_video = True
+            self.thread.start_video()
+            print('Start video')
+
 
 
     ############################################################################
@@ -188,7 +207,7 @@ class MyWindow(QMainWindow):
         self.status.showMessage('Идёт трансляция...')
         # Change button to stop
         self.ss_video.setText('Пауза')
-        self.thread = VideoThread()
+        # self.thread = VideoThread()
         self.thread.change_pixmap_signal.connect(self.update_image)
 
         # start the thread
@@ -234,7 +253,7 @@ class MyWindow(QMainWindow):
         self.update_sizes(item_sorted)
         self.update_classes(class_sorted)
         qt_img = self.convert_cv_qt(cv_img)
-        self.image_label.setPixmap(qt_img)
+        self.image_label.setPixmap(qt_img) # show video
 
     def update_sizes(self, sizes):
         if len(sizes) > 0:

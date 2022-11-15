@@ -23,7 +23,7 @@ class Detector(object):
             use_cuda=use_cuda
         )
 
-        self.deepsort = DeepSort(DEEPSORT, use_cuda=use_cuda)
+        self.deepsort = DeepSort(DEEPSORT, max_dist=0.9, min_confidence=0.9, use_cuda=use_cuda)
         self.drawer = Drawer().add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(
             Mask(
             )
@@ -54,5 +54,9 @@ class Detector(object):
             if len(outputs) > 0:
                 image = self.drawer.outputs(image, outputs)
                 print(f'len(outputs)={len(outputs)}')
+            else:
+                image = image[:, :, :-1]
+        else:
+            image = image[:, :, :-1]
 
         return image
