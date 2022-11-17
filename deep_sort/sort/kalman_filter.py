@@ -31,16 +31,16 @@ class KalmanFilter(object):
     contains the bounding box center position (x, y), aspect ratio a, height h,
     and their respective velocities.
 
-    Object motion follows a constant velocity model. The bounding box location
+    Object motion follows a constant velocity models. The bounding box location
     (x, y, a, h) is taken as direct observation of the state space (linear
-    observation model).
+    observation models).
 
     """
 
     def __init__(self):
         ndim, dt = 4, 1.
 
-        # Create Kalman filter model matrices.
+        # Create Kalman filter models matrices.
         self._motion_mat = np.eye(2 * ndim, 2 * ndim)
         for i in range(ndim):
             self._motion_mat[i, ndim + i] = dt
@@ -48,7 +48,7 @@ class KalmanFilter(object):
 
         # Motion and observation uncertainty are chosen relative to the current
         # state estimate. These weights control the amount of uncertainty in
-        # the model. This is a bit hacky.
+        # the models. This is a bit hacky.
         self._std_weight_position = 1. / 20
         self._std_weight_velocity = 1. / 160
 

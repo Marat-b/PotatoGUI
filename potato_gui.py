@@ -1,3 +1,6 @@
+import datetime
+import time
+
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtMultimedia import QCameraInfo
 from PyQt5.QtWidgets import QCheckBox, QComboBox, QDesktopWidget, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, \
@@ -15,13 +18,20 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
 import numpy as np
 
 from classes.http_request import HttpRequest
+from classes.request_data import RequestData
 from classes.video_thread import VideoThread
+from config.create_dirs import create_dirs
+from db.app_database import create_db_and_tables
+from db.save_session_data import save_session_data
+from db.send_session_data import send_session_data
+from db.services.session_service import SessionService
 
 
 class MyWindow(QMainWindow):
     def __init__(self):
         super(MyWindow, self).__init__()
         self.hr = HttpRequest()
+        self.rd = RequestData()
         self.widget_botanical_variety = None
         self.class_names_ru = ['здоровая', 'альтернириоз', 'антракноз', 'фомоз (пуговичная гниль)',
                                'фузариоз (сухая гниль)', 'внутренняя гниль',
@@ -167,10 +177,10 @@ class MyWindow(QMainWindow):
         self.middle_size.setText("0")
         self.small_size.setText("0")
 
-        self.hr.total_count("0")
-        self.hr.large_caliber("0")
-        self.hr.medium_caliber("0")
-        self.hr.small_caliber("0")
+        self.rd.total_count = "0"
+        self.rd.large_caliber = "0"
+        self.rd.medium_caliber = "0"
+        self.rd.small_caliber = "0"
         for i, class_name in enumerate(self.class_names_ru):
             self.class_widgets[i].setText("0")
 
@@ -180,8 +190,13 @@ class MyWindow(QMainWindow):
 
 
     def onRequest(self):
-        self.hr.send_request()
-        QMessageBox.information(self, 'Информация', 'Данные отправлены на Веб сервер.')
+        ret = self.hr.send_request(self.rd.data)
+        if ret:
+            send_session_data(self.hr)
+            QMessageBox.information(self, 'Информация', 'Данные отправлены на Веб сервер.')
+        else:
+            save_session_data(self.rd)
+            QMessageBox.warning(self, 'Ошибка', 'Невозможно записать данные на сервер, попробуйте позднее.')
 
     def onVideo(self):
         if self.save_video:
@@ -200,8 +215,8 @@ class MyWindow(QMainWindow):
     ############################################################################
     # Activates when Start/Stop video button is clicked to Start (ss_video
     def ClickStartVideo(self):
-        self.hr.start_date()
-        self.hr.start_time()
+        self.rd.start_date = str(datetime.date.today())
+        self.rd.start_time = time.strftime('%H:%M', time.localtime())
         # Change label color to light blue
         self.ss_video.clicked.disconnect(self.ClickStartVideo)
         self.status.showMessage('Идёт трансляция...')
@@ -224,19 +239,19 @@ class MyWindow(QMainWindow):
         self.ss_video.clicked.disconnect(self.thread.stop)
         self.ss_video.clicked.connect(self.ClickStartVideo)
         ######## update data #########################
-        self.hr.botanical_variety(self.widget_botanical_variety.currentText())
-        self.hr.declared_volume(str(self.widget_declared_volume.value()))
-        self.hr.car(self.widget_truck.currentText())
-        self.hr.provider(self.widget_provider.currentText())
+        self.rd.botanical_variety=self.widget_botanical_variety.currentText()
+        self.rd.declared_volume=str(self.widget_declared_volume.value())
+        self.rd.car=self.widget_truck.currentText()
+        self.rd.provider=self.widget_provider.currentText()
         # self.hr.direction = self.widget_direction.currentText()
-        self.hr.total_count(str(self.sizes['result']))
-        self.hr.large_caliber(str(self.sizes['big']))
-        self.hr.medium_caliber(str(self.sizes['middle']))
-        self.hr.small_caliber(str(self.sizes['small']))
+        self.rd.total_count=str(self.sizes['result'])
+        self.rd.large_caliber=str(self.sizes['big'])
+        self.rd.medium_caliber=str(self.sizes['middle'])
+        self.rd.small_caliber=str(self.sizes['small'])
         ######## classes ####################
-        self.hr.phytophthora(self.class_widgets[7].text())
-        self.hr.end_date()
-        self.hr.end_time()
+        self.rd.phytophthora=self.class_widgets[7].text()
+        self.rd.end_date = str(datetime.date.today())
+        self.rd.end_time = time.strftime('%H:%M', time.localtime())
         self.status.showMessage('Трансляция остановлена, данные сохранены')
 
     ########################################################################################################################
@@ -281,6 +296,8 @@ class MyWindow(QMainWindow):
 
 
 if __name__ == '__main__':
+    create_dirs()
+    create_db_and_tables()
     app = QApplication(sys.argv)
     win = MyWindow()
     # win.show()
