@@ -25,6 +25,7 @@ from db.app_database import create_db_and_tables
 from db.save_session_data import save_session_data
 from db.send_session_data import send_session_data
 from db.services.session_service import SessionService
+from login_window import LoginWindow
 
 
 class MyWindow(QMainWindow):
@@ -38,6 +39,8 @@ class MyWindow(QMainWindow):
                                'некроз', 'фитофтороз', 'розовая гниль', 'парша', 'мокрая гниль']
         self.classes = {}
         self.sizes = {'big': 0, 'middle': 0, 'small': 0, 'result': 0}
+        self.obj = {'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname':'',
+                    'operator_patronymic': ''}
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
         self.save_video = False
         self.thread = VideoThread()
@@ -56,6 +59,11 @@ class MyWindow(QMainWindow):
     #                                                   Windows                                                            #
     ########################################################################################################################
     def initWindow(self):
+        lw = LoginWindow(self.obj)
+        lw.exec()
+        # self.rd.operator_id = self.obj['operator_id']
+        self.fill_from_data()
+        print(f'self.obj={self.obj}')
         # create the video capture thread
         self.thread = VideoThread()
         # set layout
@@ -190,13 +198,22 @@ class MyWindow(QMainWindow):
 
 
     def onRequest(self):
-        ret = self.hr.send_request(self.rd.data)
+        print(f"obj[token]={self.obj['token']}")
+        if self.obj['token'] is None:
+            lw = LoginWindow(self.obj)
+            lw.exec()
+            # self.rd.operator_id = self.obj['operator_id']
+            self.fill_from_data()
+        ret = self.hr.send_request(self.obj['token'], self.rd.data)
+        print(f'ret={ret}')
         if ret:
-            send_session_data(self.hr)
+            send_session_data(self.hr, self.obj)
             QMessageBox.information(self, 'Информация', 'Данные отправлены на Веб сервер.')
         else:
             save_session_data(self.rd)
-            QMessageBox.warning(self, 'Ошибка', 'Невозможно записать данные на сервер, попробуйте позднее.')
+            QMessageBox.warning(self, 'Ошибка', 'Невозможно записать данные на сервер, попробуйте позднее.\nДанные '
+                                                'будут записаны в БД на диске.\nПри появлении связи, при следующей '
+                                                'попытки соединении с сервером, эти данные будут записаны на сервер.')
 
     def onVideo(self):
         if self.save_video:
@@ -294,11 +311,21 @@ class MyWindow(QMainWindow):
         # p = convert_to_Qt_format.scaled(801, 801, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
+    def fill_from_data(self):
+        self.rd.operator_id = self.obj['operator_id']
+        self.rd.operator_name = self.obj['operator_name']
+        self.rd.operator_surname =  self.obj['operator_surname']
+        self.rd.operator_patronymic =  self.obj['operator_patronymic']
+
+
 
 if __name__ == '__main__':
-    create_dirs()
+    # create_dirs()
     create_db_and_tables()
     app = QApplication(sys.argv)
+    # lw = LoginWindow()
+    # lw.show()
+    # print(lw.token)
     win = MyWindow()
     # win.show()
     sys.exit(app.exec())

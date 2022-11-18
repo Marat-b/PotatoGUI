@@ -23,10 +23,10 @@ class RequestData:
                 "null": "23"
             },
             "operator": {
-                "id": "62ecf3f89c2f9f72b0d989d2",
-                "surname": "фон Бабаян",
-                "name": "Карл-Густав",
-                "patronymic": "Ахмед оглы"
+                "id": "",
+                "surname": "",
+                "name": "",
+                "patronymic": ""
             },
             "configuration": "62eb5881f54a8809ca9c8db9",
             "start_date": "2022-08-05",
