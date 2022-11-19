@@ -6,7 +6,7 @@ from classes.drawer_depth import Drawer
 from classes.entity import Entity
 from classes.identity import Identity
 from classes.mask import Mask
-from config.config import DEEPSORT, DETECTRON2, DISPLAY, USE_CUDA
+from config.config import DEEPSORT, DETECTRON2, DISPLAY, NUM_CLASSES, USE_CUDA
 from deep_sort import DeepSort
 from classes.calculator2 import Calculator2
 from classes.measurement_depth import Measurement
@@ -15,9 +15,9 @@ from classes.ts_detection import TorchscriptDetection
 
 class Detector(object):
     def __init__(self):
-        # self.class_names = ['strong', 'sick', 'stone']
-        self.class_names = ['strong', 'alternariosis', 'anthracnose', 'fomosis', 'fusarium', 'internalrot',
-                            'necrosis', 'phytophthorosis', 'pinkrot', 'scab', 'wetrot']
+        self.class_names = ['strong', 'rot']
+        # self.class_names = ['strong', 'alternariosis', 'anthracnose', 'fomosis', 'fusarium', 'internalrot',
+        #                     'necrosis', 'phytophthorosis', 'pinkrot', 'scab', 'wetrot']
         use_cuda = USE_CUDA
         self.display = DISPLAY
         self.detectron2 = TorchscriptDetection(
@@ -25,7 +25,7 @@ class Detector(object):
             use_cuda=use_cuda
         )
 
-        self.deepsort = DeepSort(DEEPSORT, max_dist=0.9, min_confidence=0.9, use_cuda=use_cuda)
+        self.deepsort = DeepSort(DEEPSORT, max_dist=0.9, min_confidence=0.9, use_cuda=use_cuda, num_classes=NUM_CLASSES)
         self.drawer = Drawer().add_bbox(Bbox()).add_identity(Identity()).add_entity(Entity()).add_mask(
             Mask(
             )

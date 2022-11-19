@@ -19,7 +19,7 @@ import numpy as np
 
 from classes.http_request import HttpRequest
 from classes.request_data import RequestData
-from classes.video_thread import VideoThread
+from classes.video_thread_oak import VideoThread
 from config.create_dirs import create_dirs
 from db.app_database import create_db_and_tables
 from db.save_session_data import save_session_data
@@ -80,7 +80,7 @@ class MyWindow(QMainWindow):
         self.layout.addWidget(self.ss_video, 7, 8)
         self.ss_video.clicked.connect(self.ClickStartVideo)
 
-        self.btn_http = QPushButton('http save')
+        self.btn_http = QPushButton('Отправить')
         self.layout.addWidget(self.btn_http, 7, 9)
         self.btn_http.clicked.connect(self.onRequest)
         self.btn_http.setEnabled(False)
@@ -185,7 +185,7 @@ class MyWindow(QMainWindow):
         self.status = QStatusBar()
         self.status.setStyleSheet("background : lightblue;")  # Setting style sheet to the status bar
         self.setStatusBar(self.status)  # Adding status bar to the main window
-        self.status.showMessage('Ready to start')
+        self.status.showMessage('Готово к работе...')
 
     ######################################################################
     #                                   Events                           #
@@ -235,11 +235,11 @@ class MyWindow(QMainWindow):
         if self.save_video:
             self.save_video = False
             self.thread.stop_video()
-            print('Stop video')
+            # print('Stop video')
         else:
             self.save_video = True
             self.thread.start_video()
-            print('Start video')
+            # print('Start video')
 
 
 
@@ -290,7 +290,7 @@ class MyWindow(QMainWindow):
         self.rd.rot = self.class_widgets[1].text()
         self.rd.end_date = str(datetime.date.today())
         self.rd.end_time = time.strftime('%H:%M', time.localtime())
-        self.status.showMessage('Трансляция остановлена, данные сохранены')
+        self.status.showMessage('Трансляция остановлена, данные должны быть отправлены на сервер.')
 
     ########################################################################################################################
     #                                                   Actions                                                            #
@@ -341,7 +341,7 @@ class MyWindow(QMainWindow):
 
 
 if __name__ == '__main__':
-    # create_dirs()
+    create_dirs()
     create_db_and_tables()
     app = QApplication(sys.argv)
     # lw = LoginWindow()

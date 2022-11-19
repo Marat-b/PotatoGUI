@@ -93,10 +93,11 @@ class Drawer:
             # avg_disparity = np.nanmedian(zero_to_nan)
             # print(f'avg_disparity={avg_disparity}')
             max_disparity = np.nanmax(zero_to_nan)
-            print(f'****mind={max_disparity}')
+            # print(f'****mind={max_disparity}')
             # print(f'x1={x1}, x2={x2}, y1={y1}, y2={y2}')
             width = float('{:.3f}'.format(self._measurement.get_width_meter(mask, max_disparity, box)))
             self._calculator.add(self._identity[i], width)
+            self._calculator.add_class(self._identity[i], self._entity[i])
             color = self._color_list[int(self._identity[i] % self._color_index)]
             label = '{}-{:d} w={}m'.format(self._class_names[self._entity[i]], self._identity[i], str(width))
             t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
@@ -104,12 +105,13 @@ class Drawer:
             cv2.rectangle(image, (x1, y1), (x1 + t_size[0] + 3, y1 + t_size[1] + 4), color, -1)
             cv2.putText(image, label, (x1, y1 + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2)
         item_sorted = self._calculator.count()
+        class_sorted = self._calculator.count_classes()
         for i, key in enumerate(item_sorted.keys()):
             cv2.putText(
                 image, 'amount of {}={}'.format(key, str(item_sorted[key])),
                 (5, 5 + t_size[1] + 4 + i * (t_size[1])), cv2.FONT_HERSHEY_PLAIN, 2, [0, 0, 255], 2
                 )
-        return image
+        return image, item_sorted, class_sorted
 
     def _get_mask(self, img, box, mask):
         """
