@@ -4,7 +4,7 @@ import time
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtMultimedia import QCameraInfo
 from PyQt5.QtWidgets import QCheckBox, QComboBox, QDesktopWidget, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, \
-    QMainWindow, \
+    QLineEdit, QMainWindow, \
     QMessageBox, QPushButton, \
     QSpinBox, QStatusBar, \
     QWidget, \
@@ -33,10 +33,13 @@ class MyWindow(QMainWindow):
         super(MyWindow, self).__init__()
         self.hr = HttpRequest()
         self.rd = RequestData()
-        self.widget_botanical_variety = None
-        self.class_names_ru = ['здоровая', 'альтернириоз', 'антракноз', 'фомоз (пуговичная гниль)',
-                               'фузариоз (сухая гниль)', 'внутренняя гниль',
-                               'некроз', 'фитофтороз', 'розовая гниль', 'парша', 'мокрая гниль']
+        # self.widget_botanical_variety = None
+        # self.class_names_ru = ['здоровая', 'альтернириоз', 'антракноз', 'фомоз (пуговичная гниль)',
+        #                        'фузариоз (сухая гниль)', 'внутренняя гниль',
+        #                        'некроз', 'фитофтороз', 'розовая гниль', 'парша', 'мокрая гниль']
+        self.class_names_ru = ['здоровая', 'гнилая']
+
+
         self.classes = {}
         self.sizes = {'big': 0, 'middle': 0, 'small': 0, 'result': 0}
         self.obj = {'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname':'',
@@ -80,6 +83,7 @@ class MyWindow(QMainWindow):
         self.btn_http = QPushButton('http save')
         self.layout.addWidget(self.btn_http, 7, 9)
         self.btn_http.clicked.connect(self.onRequest)
+        self.btn_http.setEnabled(False)
 
         self.btn_clear = QPushButton('Очистить')
         self.layout.addWidget(self.btn_clear, 7, 10)
@@ -118,7 +122,7 @@ class MyWindow(QMainWindow):
         groupbox_size.layout().addWidget(self.small_size, 3, 4)
 
         x = 0
-        groupbox_sick = QGroupBox('Болезни')
+        groupbox_sick = QGroupBox('Состояние')
         groupbox_sick.setLayout(QGridLayout())
         self.layout.addWidget(groupbox_sick, 10, 5, 1, 4)
         self.class_widgets = {}
@@ -127,15 +131,16 @@ class MyWindow(QMainWindow):
             self.class_widgets[i] = QLabel('0')
             groupbox_sick.layout().addWidget(self.class_widgets[i], x + i, 4)
 
-        # ----------------------------------------------------------------
+        # #########################################################################
         groupbox = QGroupBox('Параметры')
         groupbox.setLayout(QGridLayout())
         self.layout.addWidget(groupbox, 0, 8, 1, 4)
 
         groupbox.layout().addWidget(QLabel('Сорт картофеля'), 0, 0)
-        self.widget_botanical_variety = QComboBox()
-        self.widget_botanical_variety.addItem('Аспия', 0)
-        self.widget_botanical_variety.addItem('Белорусская', 1)
+        # self.widget_botanical_variety = QComboBox()
+        self.widget_botanical_variety = QLineEdit(self, placeholderText='Название сорта картофеля')
+        # self.widget_botanical_variety.addItem('Аспия', 0)
+        # self.widget_botanical_variety.addItem('Белорусская', 1)
         groupbox.layout().addWidget(self.widget_botanical_variety, 0, 1)
 
         groupbox.layout().addWidget(QLabel('Заявленный объём'), 1, 0)
@@ -143,22 +148,32 @@ class MyWindow(QMainWindow):
         groupbox.layout().addWidget(self.widget_declared_volume, 1, 1)
 
         groupbox.layout().addWidget(QLabel('Транспортное средство'), 2, 0)
-        self.widget_truck = QComboBox()
-        self.widget_truck.addItem('КАМАЗ', 0)
-        self.widget_truck.addItem('Газель', 1)
+        # self.widget_truck = QComboBox()
+        self.widget_truck = QLineEdit(self, placeholderText='Марка автомобиля')
+        # self.widget_truck.addItem('КАМАЗ', 0)
+        # self.widget_truck.addItem('Газель', 1)
         groupbox.layout().addWidget(self.widget_truck, 2, 1)
 
-        groupbox.layout().addWidget(QLabel('Поставщик'), 3, 0)
-        self.widget_provider = QComboBox()
-        self.widget_provider.addItem('ООО Ромашка', 0)
-        self.widget_provider.addItem('ООО Промокашка', 1)
-        groupbox.layout().addWidget(self.widget_provider, 3, 1)
+        groupbox.layout().addWidget(QLabel('Гос. номер'), 3, 0)
+        self.widget_gosnomer = QLineEdit(self, placeholderText='Гос. номер автомобиля')
+        groupbox.layout().addWidget(self.widget_gosnomer, 3, 1)
 
-        groupbox.layout().addWidget(QLabel('Направление'), 4, 0)
+        groupbox.layout().addWidget(QLabel('Поставщик'), 4, 0)
+        # self.widget_provider = QComboBox()
+        self.widget_provider = QLineEdit(self, placeholderText='Название компании')
+        # self.widget_provider.addItem('ООО Ромашка', 0)
+        # self.widget_provider.addItem('ООО Промокашка', 1)
+        groupbox.layout().addWidget(self.widget_provider, 4, 1)
+
+        groupbox.layout().addWidget(QLabel('Получатель'), 5, 0)
+        self.widget_recipient = QLineEdit(self, placeholderText='Название компании')
+        groupbox.layout().addWidget(self.widget_recipient, 5, 1)
+
+        groupbox.layout().addWidget(QLabel('Направление'), 6, 0)
         self.widget_direction = QComboBox()
         self.widget_direction.addItem('Приёмка', 0)
-        self.widget_direction.addItem('Отъёмка', 1)
-        groupbox.layout().addWidget(self.widget_direction, 4, 1)
+        self.widget_direction.addItem('Отгрузка', 1)
+        groupbox.layout().addWidget(self.widget_direction, 6, 1)
 
         #------------- check box -----------------------------
         self.chk_video = QCheckBox(self)
@@ -180,6 +195,7 @@ class MyWindow(QMainWindow):
         self.close()
 
     def onClear(self):
+        self.btn_http.setEnabled(False)
         self.result.setText("0")
         self.big_size.setText("0")
         self.middle_size.setText("0")
@@ -232,6 +248,7 @@ class MyWindow(QMainWindow):
     ############################################################################
     # Activates when Start/Stop video button is clicked to Start (ss_video
     def ClickStartVideo(self):
+        self.btn_http.setEnabled(True)
         self.rd.start_date = str(datetime.date.today())
         self.rd.start_time = time.strftime('%H:%M', time.localtime())
         # Change label color to light blue
@@ -256,17 +273,21 @@ class MyWindow(QMainWindow):
         self.ss_video.clicked.disconnect(self.thread.stop)
         self.ss_video.clicked.connect(self.ClickStartVideo)
         ######## update data #########################
-        self.rd.botanical_variety=self.widget_botanical_variety.currentText()
+        self.rd.botanical_variety=self.widget_botanical_variety.text()  # currentText()
         self.rd.declared_volume=str(self.widget_declared_volume.value())
-        self.rd.car=self.widget_truck.currentText()
-        self.rd.provider=self.widget_provider.currentText()
+        self.rd.car=self.widget_truck.text() # currentText()
+        self.rd.gosnomer = self.widget_gosnomer.text() # currentText
+        self.rd.provider=self.widget_provider.text() # currentText()
+        self.rd.recipient=self.widget_recipient.text()
         # self.hr.direction = self.widget_direction.currentText()
         self.rd.total_count=str(self.sizes['result'])
         self.rd.large_caliber=str(self.sizes['big'])
         self.rd.medium_caliber=str(self.sizes['middle'])
         self.rd.small_caliber=str(self.sizes['small'])
         ######## classes ####################
-        self.rd.phytophthora=self.class_widgets[7].text()
+        # self.rd.phytophthora=self.class_widgets[7].text()
+        self.rd.strong = self.class_widgets[0].text()
+        self.rd.rot = self.class_widgets[1].text()
         self.rd.end_date = str(datetime.date.today())
         self.rd.end_time = time.strftime('%H:%M', time.localtime())
         self.status.showMessage('Трансляция остановлена, данные сохранены')

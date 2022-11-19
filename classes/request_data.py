@@ -6,12 +6,12 @@ class RequestData:
     def __init__(self):
         self._data = {
             "settings": {
-                "provider": "ООО Полог",
-                "recipient": "ООО Низина",
-                "car": "КАМАЗ 3215",
-                "gosnomer": "У678КР199",
-                "botanical_variety": "Поздняя",
-                "declared_volume": "10 тонн",
+                "provider": "",
+                "recipient": "",
+                "car": "",
+                "gosnomer": "",
+                "botanical_variety": "",
+                "declared_volume": "0",
                 "total_count": "0",
                 "large_caliber": "0",
                 "medium_caliber": "0",
@@ -20,7 +20,9 @@ class RequestData:
                 "phytophthora": "0",
                 "spondylocladium_atrovirens": "0",
                 "growth_cracks": "0",
-                "null": "23"
+                "rot": "0",
+                "strong": "0",
+                "null": "0"
             },
             "operator": {
                 "id": "",
@@ -31,13 +33,29 @@ class RequestData:
             "configuration": "62eb5881f54a8809ca9c8db9",
             "start_date": "2022-08-05",
             "end_date": "2022-08-05",
-            "start_time": "13:10",
-            "end_time": "14:00"
+            "start_time": "00:010",
+            "end_time": "00:00"
         }
 
     @property
     def data(self):
         return self._data
+
+    @property
+    def strong(self):
+        return self._data['settings']['strong']
+
+    @strong.setter
+    def strong(self, item):
+        self._data['settings']['strong'] = item
+
+    @property
+    def rot(self):
+        return self._data['settings']['rot']
+
+    @rot.setter
+    def rot(self, item):
+        self._data['settings']['rot'] = item
 
     @property
     def provider(self):

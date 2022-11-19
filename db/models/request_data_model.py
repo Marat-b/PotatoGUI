@@ -17,6 +17,8 @@ class RequestDataBase(SQLModel):
     large_caliber: str = Field(default='', index=False)
     medium_caliber: str = Field(default='', index=False)
     small_caliber: str = Field(default='', index=False)
+    strong: str =  Field(default='', index=False)
+    rot: str = Field(default='', index=False)
     damage: str = Field(default='', index=False)
     phytophthora: str = Field(default='', index=False)
     spondylocladium_atrovirens: str = Field(default='', index=False)

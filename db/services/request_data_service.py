@@ -23,6 +23,8 @@ class RequestDataService:
             large_caliber=data.large_caliber,
             medium_caliber=data.medium_caliber,
             small_caliber=data.small_caliber,
+            strong=data.strong,
+            rot=data.rot,
             damage=data.damage,
             phytophthora=data.phytophthora,
             spondylocladium_atrovirens=data.spondylocladium_atrovirens,
@@ -56,6 +58,8 @@ class RequestDataService:
             data.large_caliber = rdata.large_caliber
             data.medium_caliber = rdata.medium_caliber
             data.small_caliber = rdata.small_caliber
+            data.strong = rdata.strong
+            data.rot = rdata.rot
             data.damage = rdata.damage
             data.phytophthora = rdata.phytophthora
             data.spondylocladium_atrovirens = rdata.spondylocladium_atrovirens
