@@ -192,17 +192,18 @@ class MyWindow(QMainWindow):
         menuBar = self.menuBar()
         users = menuBar.addMenu('Пользователи')
         usersAction = QAction('Сменить оператора', self)
-        usersAction.setToolTip('Сменить оператора в текущей сессии')
+        usersAction.setStatusTip('Сменить оператора в текущей сессии')
         usersAction.triggered.connect(self.onChangeUser)
         users.addAction(usersAction)
 
         parameters = menuBar.addMenu('Параметры')
         deviceAction = QAction('Периферийные устройства..', self)
-        deviceAction.setToolTip('Настройка периферийного устройства',)
+        deviceAction.setStatusTip('Настройка периферийного устройства',)
         deviceAction.triggered.connect(self.onDevice)
 
         nnAction = QAction('Нейронной сети..', self)
         nnAction.triggered.connect(self.onNn)
+        nnAction.setStatusTip('Настройка параметров нейронной сети', )
         parameters.addActions([deviceAction, nnAction])
 
     ######################################################################
