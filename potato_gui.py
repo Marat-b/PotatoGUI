@@ -1,21 +1,19 @@
 import datetime
 import time
 
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtGui
 from PyQt5.QtMultimedia import QCameraInfo
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QDesktopWidget, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, \
+from PyQt5.QtWidgets import QAction, QCheckBox, QComboBox, QDesktopWidget, QGridLayout, QGroupBox, \
     QLineEdit, QMainWindow, \
     QMessageBox, QPushButton, \
     QSpinBox, QStatusBar, \
     QWidget, \
     QApplication, \
-    QLabel, \
-    QVBoxLayout
+    QLabel
 from PyQt5.QtGui import QPixmap
 import sys
 import cv2
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
-import numpy as np
+from PyQt5.QtCore import Qt
 
 from classes.http_request import HttpRequest
 from classes.request_data import RequestData
@@ -24,8 +22,9 @@ from config.create_dirs import create_dirs
 from db.app_database import create_db_and_tables
 from db.save_session_data import save_session_data
 from db.send_session_data import send_session_data
-from db.services.session_service import SessionService
-from login_window import LoginWindow
+from gui.device_window import DeviceWindow
+from gui.login_window import LoginWindow
+from gui.nn_window import NnWindow
 
 
 class MyWindow(QMainWindow):
@@ -48,12 +47,14 @@ class MyWindow(QMainWindow):
         self.save_video = False
         self.thread = VideoThread()
 
+
         cent = QDesktopWidget().availableGeometry().center()  # Finds the center of the screen
         # self.setStyleSheet("background-color: white;")
         # self.resize(1400, 800)
         self.frameGeometry().moveCenter(cent)
         self.setWindowTitle('Potato MVP')
         self.initWindow()
+        self.initMenu()
 
         self.setCentralWidget(self.widget)
         self.show()
@@ -187,9 +188,38 @@ class MyWindow(QMainWindow):
         self.setStatusBar(self.status)  # Adding status bar to the main window
         self.status.showMessage('Готово к работе...')
 
+    def initMenu(self):
+        menuBar = self.menuBar()
+        users = menuBar.addMenu('Пользователи')
+        usersAction = QAction('Сменить оператора', self)
+        usersAction.setToolTip('Сменить оператора в текущей сессии')
+        usersAction.triggered.connect(self.onChangeUser)
+        users.addAction(usersAction)
+
+        parameters = menuBar.addMenu('Параметры')
+        deviceAction = QAction('Периферийные устройства..', self)
+        deviceAction.setToolTip('Настройка периферийного устройства',)
+        deviceAction.triggered.connect(self.onDevice)
+
+        nnAction = QAction('Нейронной сети..', self)
+        nnAction.triggered.connect(self.onNn)
+        parameters.addActions([deviceAction, nnAction])
+
     ######################################################################
     #                                   Events                           #
     ######################################################################
+    def onChangeUser(self):
+        old_operator_id = self.obj['operator_id']
+        lw = LoginWindow(self.obj)
+        lw.exec()
+        new_operator_id = self.obj['operator_id']
+        if new_operator_id == old_operator_id:
+            QMessageBox.warning(self, 'Информация', 'Пользователь не сменен.')
+        else:
+            QMessageBox.information(self, 'Информация', 'Пользователь сменен.')
+
+
+
     def onClose(self):
         self.thread.stop()
         self.close()
@@ -211,7 +241,13 @@ class MyWindow(QMainWindow):
         self.status.showMessage('Данные очищены')
 
 
+    def onDevice(self):
+        d = DeviceWindow()
+        d.exec()
 
+    def onNn(self):
+        n = NnWindow()
+        n.exec()
 
     def onRequest(self):
         print(f"obj[token]={self.obj['token']}")
