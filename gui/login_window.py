@@ -32,25 +32,34 @@ class LoginWindow(QDialog):
         # self.widgetd = QWidget()
         # self.widgetd.setLayout(layout)
 
-        # layout.addRow(QLabel('Ведите пинкод'))
-        layout.addWidget(QLabel('Ведите пинкод'), 0, 0)
-        # label = QLabel('Ведите пинкод', self)
-        # label.move(0, 0)
+        layout.addWidget(QLabel('IP-адрес сервера'), 0, 0)
+
+        self.widget_ipaddress = QLineEdit('erp.bk-nt.ru', self)
+        layout.addWidget(self.widget_ipaddress, 1, 0)
+        # self.widget_ipaddress.move(0, 1)
+
+        layout.addWidget(QLabel('Порт сервера'), 2, 0)
+
+        self.widget_ipport = QLineEdit('', self)
+        layout.addWidget(self.widget_ipport, 3, 0)
+        # self.widget_ipport.move(0, 1)
+
+        layout.addWidget(QLabel('Ведите пинкод'), 4, 0)
 
         self.widget_pincode = QLineEdit('', self)
-        layout.addWidget(self.widget_pincode, 1, 0)
-        self.widget_pincode.move(0, 1)
+        layout.addWidget(self.widget_pincode, 5, 0)
+        # self.widget_pincode.move(0, 1)
 
         self.widget_button_pincode = QPushButton('Ввод')
-        layout.addWidget(self.widget_button_pincode, 1, 1)
+        layout.addWidget(self.widget_button_pincode, 5, 1)
         self.widget_button_pincode.clicked.connect(self.onPincode)
 
-        layout.addWidget(QLabel('Выберите пользователя'), 2, 0)
+        layout.addWidget(QLabel('Выберите пользователя'), 6, 0)
         self.widget_users = QComboBox()
-        layout.addWidget(self.widget_users, 3, 0)
+        layout.addWidget(self.widget_users, 7, 0)
 
         self.widget_button_users = QPushButton('Выбрать')
-        layout.addWidget(self.widget_button_users, 3, 1)
+        layout.addWidget(self.widget_button_users, 7, 1)
         self.widget_button_users.clicked.connect(self.onChooseUser)
         self.widget_button_users.setEnabled(False)
 

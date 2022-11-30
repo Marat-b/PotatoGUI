@@ -22,6 +22,7 @@ from config.create_dirs import create_dirs
 from db.app_database import create_db_and_tables
 from db.save_session_data import save_session_data
 from db.send_session_data import send_session_data
+from gui.checklink_window import ChecklinkWindow
 from gui.device_window import DeviceWindow
 from gui.login_window import LoginWindow
 from gui.nn_window import NnWindow
@@ -42,7 +43,7 @@ class MyWindow(QMainWindow):
         self.classes = {}
         self.sizes = {'big': 0, 'middle': 0, 'small': 0, 'result': 0}
         self.obj = {'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname':'',
-                    'operator_patronymic': ''}
+                    'operator_patronymic': '', 'ip_address': '', 'port': ''}
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
         self.save_video = False
         self.thread = VideoThread()
@@ -204,7 +205,12 @@ class MyWindow(QMainWindow):
         nnAction = QAction('Нейронной сети..', self)
         nnAction.triggered.connect(self.onNn)
         nnAction.setStatusTip('Настройка параметров нейронной сети', )
-        parameters.addActions([deviceAction, nnAction])
+
+        checklinkAction = QAction('Проверка связи с сервером..', self)
+        checklinkAction.triggered.connect(self.onCheckLink)
+        checklinkAction.setStatusTip('Проверка связи с сервером')
+
+        parameters.addActions([checklinkAction, deviceAction, nnAction])
 
     ######################################################################
     #                                   Events                           #
@@ -220,6 +226,9 @@ class MyWindow(QMainWindow):
             QMessageBox.information(self, 'Информация', 'Пользователь сменен.')
 
 
+    def onCheckLink(self):
+        cl = ChecklinkWindow()
+        cl.exec()
 
     def onClose(self):
         self.thread.stop()
