@@ -18,12 +18,17 @@ class LoginWindow(QDialog):
     def __init__(self, data, parent=None):
         # super(LoginWindow, self).__init__()
         super(LoginWindow, self).__init__(parent)
+        self._data = data
         self.ip_address = OptionService.get_option(SERVER_IPADDRESS)
         self.ip_port = OptionService.get_option(SERVER_PORT)
-        self.hr = HttpRequest(ip_address=self.ip_address.Value, port=self.ip_port.Value)
-        self._data = data
-        self._data['ip_address'] = self.ip_address.Value
-        self._data['port'] = self.ip_port.Value
+        if self.ip_address is not None:
+            self.hr = HttpRequest(ip_address=self.ip_address.Value, port=self.ip_port.Value)
+            self._data['ip_address'] = self.ip_address.Value
+            self._data['port'] = self.ip_port.Value
+        else:
+            self.hr = HttpRequest()
+
+
         # token = None
         # self.setLayout(QGridLayout())
         # cent = QDesktopWidget().availableGeometry().center()  # Finds the center of the screen
@@ -79,7 +84,7 @@ class LoginWindow(QDialog):
 
         ########## get token from DB ################
         token = OptionService.get_option('token')
-        print(f'token -  {token.Value}')
+        print(f'token -  {token}')
         if token is not None:
             self.widget_button_users.setEnabled(True)
             self._data['token'] = token.Value
@@ -103,12 +108,12 @@ class LoginWindow(QDialog):
             self._data['ip_address'] = self.widget_ipaddress.text()
             self._data['port'] = self.widget_ipport.text()
 
-            users = self.hr.get_check(self._data['token'])
-            if len(users) > 0:
+            self.users = self.hr.get_check(self._data['token'])
+            if len(self.users) > 0:
                 self.widget_users.clear()
-            for user in users:
+            for i, user in enumerate(self.users):
                 print(f'user_id={user["id"]}')
-                self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', user["phone"])
+                self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
         else:
             # box = QMessageBox.warning(self, 'Внимание', 'Пинкод не верен или нет связи')
             box = QMessageBox()
