@@ -7,14 +7,23 @@ from PyQt5.QtWidgets import QApplication, QComboBox, QDesktopWidget, QDialog, QF
     QWidget
 
 from classes.http_request import HttpRequest
+from db.services.option_service import OptionService
+from gui.password_window import PasswordWindow
+
+SERVER_IPADDRESS = 'server_ipaddress'
+SERVER_PORT = 'server_port'
 
 
 class LoginWindow(QDialog):
     def __init__(self, data, parent=None):
         # super(LoginWindow, self).__init__()
         super(LoginWindow, self).__init__(parent)
-        self.hr = HttpRequest()
+        self.ip_address = OptionService.get_option(SERVER_IPADDRESS)
+        self.ip_port = OptionService.get_option(SERVER_PORT)
+        self.hr = HttpRequest(ip_address=self.ip_address.Value, port=self.ip_port.Value)
         self._data = data
+        self._data['ip_address'] = self.ip_address.Value
+        self._data['port'] = self.ip_port.Value
         # token = None
         # self.setLayout(QGridLayout())
         # cent = QDesktopWidget().availableGeometry().center()  # Finds the center of the screen
@@ -34,13 +43,18 @@ class LoginWindow(QDialog):
 
         layout.addWidget(QLabel('IP-адрес сервера'), 0, 0)
 
-        self.widget_ipaddress = QLineEdit('erp.bk-nt.ru', self)
+        if self.ip_address is None:
+            self.widget_ipaddress = QLineEdit('', self)  # erp.bk-nt.ru
+        else:
+            self.widget_ipaddress = QLineEdit(self.ip_address.Value, self)
         layout.addWidget(self.widget_ipaddress, 1, 0)
         # self.widget_ipaddress.move(0, 1)
 
         layout.addWidget(QLabel('Порт сервера'), 2, 0)
-
-        self.widget_ipport = QLineEdit('', self)
+        if self.ip_port is None:
+            self.widget_ipport = QLineEdit('', self)
+        else:
+            self.widget_ipport = QLineEdit(self.ip_port.Value, self)
         layout.addWidget(self.widget_ipport, 3, 0)
         # self.widget_ipport.move(0, 1)
 
@@ -63,16 +77,38 @@ class LoginWindow(QDialog):
         self.widget_button_users.clicked.connect(self.onChooseUser)
         self.widget_button_users.setEnabled(False)
 
+        ########## get token from DB ################
+        token = OptionService.get_option('token')
+        print(f'token -  {token.Value}')
+        if token is not None:
+            self.widget_button_users.setEnabled(True)
+            self._data['token'] = token.Value
+            # OptionService.update_option('token', token)
+            self.users = self.hr.get_check(self._data['token'])
+            print(f'self.users={self.users}')
+            if self.users is not None:
+                for i, user in enumerate(self.users):
+                    print(f'user_id={user["id"]}')
+                    self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
+
     def onPincode(self):
+        self.hr(ip_address=self.widget_ipaddress.text(), port=self.widget_ipport.text())
         pincode = self.widget_pincode.text()
         token = self.hr.get_point(pincode)
         if token is not None:
+            OptionService.update_option('token', token)
+            self.save_data_to_db()
             self.widget_button_users.setEnabled(True)
             self._data['token'] = token
+            self._data['ip_address'] = self.widget_ipaddress.text()
+            self._data['port'] = self.widget_ipport.text()
+
             users = self.hr.get_check(self._data['token'])
+            if len(users) > 0:
+                self.widget_users.clear()
             for user in users:
                 print(f'user_id={user["id"]}')
-                self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', user["id"] )
+                self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', user["phone"])
         else:
             # box = QMessageBox.warning(self, 'Внимание', 'Пинкод не верен или нет связи')
             box = QMessageBox()
@@ -85,14 +121,27 @@ class LoginWindow(QDialog):
             box.exec()
             self.accept()
 
-
     def onChooseUser(self):
-        self.user_id = self.widget_users.currentIndex()
-        print(f'self.widget_users.itemData={self.widget_users.itemData(self.widget_users.currentIndex())}')
-        self._data['operator_id'] = self.widget_users.itemData(self.widget_users.currentIndex())
+        # self.user_id = self.widget_users.currentIndex()
+        current_index = self.widget_users.currentIndex()
+        print(f'current_index={current_index}')
+        print(f'self.users={self.users}')
+        print(f'self.widget_users.itemData={self.widget_users.itemData(current_index)}')
+        print(f"self.users[current_index]['phone']={self.users[current_index]['phone']}")
+        self._data['operator_id'] = self.users[current_index]['id'] #self.widget_users.itemData(
+            # self.widget_users.currentIndex())
+        password = {'password': ''}
+        pw = PasswordWindow(password)
+        pw.exec()
+        print(f'self.password={password}')
+        ret = self.hr.check_password(self.users[current_index]['phone'], password['password'])
+        if ret:
+            print('password is true')
+            self._data['password'] = '1'
+        else:
+            print('password is false')
         self.fill_data()
         self.accept()
-
 
     def accept(self):
         super().accept()
@@ -103,11 +152,17 @@ class LoginWindow(QDialog):
             self._data['operator_name'] = words[0]
             self._data['operator_surname'] = words[1]
             self._data['operator_patronymic'] = words[2]
+
         except:
             pass
 
+    def save_data_to_db(self):
+        OptionService.update_option(SERVER_IPADDRESS, self.widget_ipaddress.text())
+        OptionService.update_option(SERVER_PORT, self.widget_ipport.text())
+
+
 if __name__ == "__main__":
-    token='Zero'
+    token = 'Zero'
     app = QApplication(sys.argv)
     win = LoginWindow(token)
     win.show()

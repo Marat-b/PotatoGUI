@@ -43,7 +43,7 @@ class MyWindow(QMainWindow):
         self.classes = {}
         self.sizes = {'big': 0, 'middle': 0, 'small': 0, 'result': 0}
         self.obj = {'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname':'',
-                    'operator_patronymic': '', 'ip_address': '', 'port': ''}
+                    'operator_patronymic': '', 'ip_address': '', 'port': '', 'password': '0'}
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
         self.save_video = False
         self.thread = VideoThread()
@@ -217,13 +217,19 @@ class MyWindow(QMainWindow):
     ######################################################################
     def onChangeUser(self):
         old_operator_id = self.obj['operator_id']
+        self.obj['password'] = '0'
+        print(f'old_operator_id={old_operator_id}')
         lw = LoginWindow(self.obj)
         lw.exec()
+        print(f'self.obj={self.obj}')
         new_operator_id = self.obj['operator_id']
+        print(f'new_operator_id={new_operator_id}')
         if new_operator_id == old_operator_id:
-            QMessageBox.warning(self, 'Информация', 'Пользователь не сменен.')
+            QMessageBox.warning(self, 'Предупреждение', 'Пользователь не сменен.')
         else:
             QMessageBox.information(self, 'Информация', 'Пользователь сменен.')
+        if self.obj['password'] == '0':
+            QMessageBox.warning(self, 'Предупреждение', 'Пользователь ввёл не правильный пароль.')
 
 
     def onCheckLink(self):
@@ -261,12 +267,16 @@ class MyWindow(QMainWindow):
 
     def onRequest(self):
         print(f"obj[token]={self.obj['token']}")
-        if self.obj['token'] is None:
+        if self.obj['token'] is None or self.obj['password'] == '0':
             lw = LoginWindow(self.obj)
             lw.exec()
             # self.rd.operator_id = self.obj['operator_id']
             self.fill_from_data()
-        ret = self.hr.send_request(self.obj['token'], self.rd.data)
+        if self.obj['password'] == '1':
+            ret = self.hr.send_request(self.obj['token'], self.rd.data)
+        else:
+            # password is not entered by user
+            ret = False
         print(f'ret={ret}')
         if ret:
             send_session_data(self.hr, self.obj)
@@ -383,6 +393,7 @@ class MyWindow(QMainWindow):
         self.rd.operator_name = self.obj['operator_name']
         self.rd.operator_surname =  self.obj['operator_surname']
         self.rd.operator_patronymic =  self.obj['operator_patronymic']
+        self.hr(ip_address=self.obj['ip_address'], port=self.obj['port'])
 
 
 
