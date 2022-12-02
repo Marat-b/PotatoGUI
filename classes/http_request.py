@@ -54,7 +54,7 @@ class HttpRequest():
             print(response.status_code)
             if response.status_code == 200:
                 r = response.json()
-                # print(f'response={r["users"]}')
+                # print(f'response={r}')
                 return r["users"]
             else:
                 print(f'Status code={response.status_code}')
@@ -76,6 +76,25 @@ class HttpRequest():
                 return False
         except Exception as e:
             return False
+
+    def get_analisis_list(self, token, data):
+        try:
+            # print(f'http data={data}')
+            my_headers = {'Authorization': f'Bearer {token}', 'Content-type': 'application/json', 'Accept': 'text/plain'}
+            # headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            response = requests.post(f'http://{self.ip_address}/api/analysis/list',
+                                     data=json.dumps(data), headers=my_headers)
+            # print(f'response={response}')
+            if response.status_code == 200:
+                r = response.json()
+                return r
+            else:
+                print(f'Status code={response.status_code}')
+                return None
+        except Exception as e:
+            print(f'Error is {e}')
+            return None
+
 
 
 

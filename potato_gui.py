@@ -64,8 +64,8 @@ class MyWindow(QMainWindow):
     #                                                   Windows                                                            #
     ########################################################################################################################
     def initWindow(self):
-        lw = LoginWindow(self.obj)
-        lw.exec()
+        # lw = LoginWindow(self.obj)
+        # lw.exec()
         # self.rd.operator_id = self.obj['operator_id']
         self.fill_from_data()
         print(f'self.obj={self.obj}')
