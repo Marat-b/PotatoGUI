@@ -15,7 +15,7 @@ class HttpRequest():
         self.ip_address = ip_address
         self.port = port
 
-    def check_password(self, login, password) -> bool:
+    def check_password(self, login, password) -> Optional[dict]:
         payload = {'login': login, 'password': password}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         print(f'payload={payload}')
@@ -26,9 +26,9 @@ class HttpRequest():
             r = response.json()
             # print(f'response={r}')
             if r["error"] == False:
-                return True
+                return r
             else:
-                return False
+                return None
 
 
     def get_point(self, pinpoint: str) -> Optional[str]:
@@ -78,22 +78,50 @@ class HttpRequest():
             return False
 
     def get_analisis_list(self, token, data):
-        try:
-            # print(f'http data={data}')
-            my_headers = {'Authorization': f'Bearer {token}', 'Content-type': 'application/json', 'Accept': 'text/plain'}
-            # headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-            response = requests.post(f'http://{self.ip_address}/api/analysis/list',
-                                     data=json.dumps(data), headers=my_headers)
-            # print(f'response={response}')
-            if response.status_code == 200:
-                r = response.json()
-                return r
+        # try:
+        print(f'get_analisis_list token={token}')
+        check_header = {'Authorization': f'Bearer {token}',  'Content-type': 'application/json', 'Accept':
+                    'text/plain'}
+        res = requests.post(
+            f'http://{self.ip_address}/api/auth/check',
+            data=json.dumps({"client": "null", "path": "/admin/point/list"}),
+            # json={"client": "null", "path": "/admin/point/list"},
+            headers=check_header
+            )
+        print(f'get_analisis_list res.status_code={res.status_code}')
+        if res.status_code == 200:
+            r = res.json()
+            check_token = r['token']
+            print(f'check_torken={check_token}')
+            res = requests.post(
+                f'http://{self.ip_address}/api/auth/check',
+                # data=json.dumps({"client": "null", "path": "/admin/analysis/list"}),
+                json={"client": "null", "path": "/admin/analysis/list"},
+                headers={'Authorization': f'Bearer {check_token}'}
+            )
+            if res.status_code == 200:
+                r = res.json()
+                check_token = r['token']
+                print(f'2 check_torken={check_token}')
+                my_headers = {'Authorization': f'Bearer {check_token}', 'Content-type': 'application/json', 'Accept':
+                    'text/plain'}
+                # headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+                response = requests.post(f'http://{self.ip_address}/api/analysis/list',
+                                         data=json.dumps(data), headers=my_headers)
+                # print(f'response={response}')
+                if response.status_code == 200:
+                    r = response.json()
+                    return r
+                else:
+                    print(f'Status code={response.status_code}')
+                    return None
             else:
-                print(f'Status code={response.status_code}')
                 return None
-        except Exception as e:
-            print(f'Error is {e}')
+        else:
             return None
+        # except Exception as e:
+        #     print(f'Error is {e}')
+        #     return None
 
 
 

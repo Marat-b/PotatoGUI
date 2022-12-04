@@ -26,6 +26,7 @@ from gui.checklink_window import ChecklinkWindow
 from gui.device_window import DeviceWindow
 from gui.login_window import LoginWindow
 from gui.nn_window import NnWindow
+from gui.print_window import PrintWindow
 
 
 class MyWindow(QMainWindow):
@@ -43,7 +44,7 @@ class MyWindow(QMainWindow):
         self.classes = {}
         self.sizes = {'big': 0, 'middle': 0, 'small': 0, 'result': 0}
         self.obj = {'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname':'',
-                    'operator_patronymic': '', 'ip_address': '', 'port': '', 'password': '0'}
+                    'operator_patronymic': '', 'ip_address': '', 'port': '', 'password': '0', 'user_token': ''}
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
         self.save_video = False
         self.thread = VideoThread()
@@ -87,14 +88,18 @@ class MyWindow(QMainWindow):
         self.btn_http.clicked.connect(self.onRequest)
         self.btn_http.setEnabled(False)
 
+        self.btn_print = QPushButton('Печать')
+        self.layout.addWidget(self.btn_print, 7, 10)
+        self.btn_print.clicked.connect(self.onPrint)
+
         self.btn_clear = QPushButton('Очистить')
-        self.layout.addWidget(self.btn_clear, 7, 10)
+        self.layout.addWidget(self.btn_clear, 7, 11)
         self.btn_clear.clicked.connect(self.onClear)
 
         # Quit button
         self.btn_quit = QPushButton(self)
         self.btn_quit.setText('Выход')
-        self.layout.addWidget(self.btn_quit, 7, 11)
+        self.layout.addWidget(self.btn_quit, 7, 12)
         self.btn_quit.clicked.connect(self.onClose)
 
         # Video
@@ -264,6 +269,10 @@ class MyWindow(QMainWindow):
     def onNn(self):
         n = NnWindow()
         n.exec()
+
+    def onPrint(self):
+        pw = PrintWindow(self.obj)
+        pw.exec()
 
     def onRequest(self):
         print(f"obj[token]={self.obj['token']}")

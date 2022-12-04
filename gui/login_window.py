@@ -140,9 +140,10 @@ class LoginWindow(QDialog):
         pw.exec()
         print(f'self.password={password}')
         ret = self.hr.check_password(self.users[current_index]['phone'], password['password'])
-        if ret:
+        if ret is not None:
             print('password is true')
             self._data['password'] = '1'
+            self._data['user_token'] = ret['token']
         else:
             print('password is false')
         self.fill_data()
