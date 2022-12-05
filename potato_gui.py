@@ -40,15 +40,16 @@ class MyWindow(QMainWindow):
         #                        'некроз', 'фитофтороз', 'розовая гниль', 'парша', 'мокрая гниль']
         self.class_names_ru = ['здоровая', 'гнилая']
 
-
         self.classes = {}
         self.sizes = {'big': 0, 'middle': 0, 'small': 0, 'result': 0}
-        self.obj = {'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname':'',
-                    'operator_patronymic': '', 'ip_address': '', 'port': '', 'password': '0', 'user_token': ''}
+        self.obj = {
+            'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname': '',
+            'operator_patronymic': '', 'ip_address': '', 'port': '', 'password': '0', 'user_token': '',
+            'cars': [], 'nomenclatures': [], 'current_client': ''
+        }
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
         self.save_video = False
         self.thread = VideoThread()
-
 
         cent = QDesktopWidget().availableGeometry().center()  # Finds the center of the screen
         # self.setStyleSheet("background-color: white;")
@@ -144,10 +145,11 @@ class MyWindow(QMainWindow):
         self.layout.addWidget(groupbox, 0, 8, 1, 4)
 
         groupbox.layout().addWidget(QLabel('Сорт картофеля'), 0, 0)
-        # self.widget_botanical_variety = QComboBox()
-        self.widget_botanical_variety = QLineEdit(self, placeholderText='Название сорта картофеля')
-        # self.widget_botanical_variety.addItem('Аспия', 0)
-        # self.widget_botanical_variety.addItem('Белорусская', 1)
+        self.widget_botanical_variety = QComboBox()
+        # self.widget_botanical_variety = QLineEdit(self, placeholderText='Название сорта картофеля')
+        for i, nomenclature in enumerate(self.obj["nomenclatures"]):
+            self.widget_botanical_variety.addItem(nomenclature["name"], i)
+        self.widget_botanical_variety.setEditable(True)
         groupbox.layout().addWidget(self.widget_botanical_variety, 0, 1)
 
         groupbox.layout().addWidget(QLabel('Заявленный объём'), 1, 0)
@@ -155,14 +157,19 @@ class MyWindow(QMainWindow):
         groupbox.layout().addWidget(self.widget_declared_volume, 1, 1)
 
         groupbox.layout().addWidget(QLabel('Транспортное средство'), 2, 0)
-        # self.widget_truck = QComboBox()
-        self.widget_truck = QLineEdit(self, placeholderText='Марка автомобиля')
-        # self.widget_truck.addItem('КАМАЗ', 0)
-        # self.widget_truck.addItem('Газель', 1)
+        self.widget_truck = QComboBox()
+        # self.widget_truck = QLineEdit(self, placeholderText='Марка автомобиля')
+        for i, car in enumerate(self.obj['cars']):
+            self.widget_truck.addItem(f'{car["brand"]} {car["model"]}', i)
+        self.widget_truck.setEditable(True)
         groupbox.layout().addWidget(self.widget_truck, 2, 1)
 
         groupbox.layout().addWidget(QLabel('Гос. номер'), 3, 0)
-        self.widget_gosnomer = QLineEdit(self, placeholderText='Гос. номер автомобиля')
+        # self.widget_gosnomer = QLineEdit(self, placeholderText='Гос. номер автомобиля')
+        self.widget_gosnomer = QComboBox()
+        for i, car in enumerate(self.obj['cars']):
+            self.widget_gosnomer.addItem(f'{car["gosnumber"]}', i)
+        self.widget_gosnomer.setEditable(True)
         groupbox.layout().addWidget(self.widget_gosnomer, 3, 1)
 
         groupbox.layout().addWidget(QLabel('Поставщик'), 4, 0)
@@ -182,7 +189,7 @@ class MyWindow(QMainWindow):
         self.widget_direction.addItem('Отгрузка', 1)
         groupbox.layout().addWidget(self.widget_direction, 6, 1)
 
-        #------------- check box -----------------------------
+        # ------------- check box -----------------------------
         self.chk_video = QCheckBox(self)
         self.chk_video.setText('Запись видео')
         self.layout.addWidget(self.chk_video, 11, 1)
@@ -194,6 +201,10 @@ class MyWindow(QMainWindow):
         self.setStatusBar(self.status)  # Adding status bar to the main window
         self.status.showMessage('Готово к работе...')
 
+        dashboard_data = self.hr.get_check_dashboard(self.obj['user_token'], self.obj['current_client'])
+        if dashboard_data is not None:
+            print(f'dashboard_data={dashboard_data}')
+
     def initMenu(self):
         menuBar = self.menuBar()
         users = menuBar.addMenu('Пользователи')
@@ -204,7 +215,7 @@ class MyWindow(QMainWindow):
 
         parameters = menuBar.addMenu('Параметры')
         deviceAction = QAction('Периферийные устройства..', self)
-        deviceAction.setStatusTip('Настройка периферийного устройства',)
+        deviceAction.setStatusTip('Настройка периферийного устройства', )
         deviceAction.triggered.connect(self.onDevice)
 
         nnAction = QAction('Нейронной сети..', self)
@@ -236,7 +247,6 @@ class MyWindow(QMainWindow):
         if self.obj['password'] == '0':
             QMessageBox.warning(self, 'Предупреждение', 'Пользователь ввёл не правильный пароль.')
 
-
     def onCheckLink(self):
         cl = ChecklinkWindow()
         cl.exec()
@@ -260,7 +270,6 @@ class MyWindow(QMainWindow):
             self.class_widgets[i].setText("0")
 
         self.status.showMessage('Данные очищены')
-
 
     def onDevice(self):
         d = DeviceWindow()
@@ -292,9 +301,11 @@ class MyWindow(QMainWindow):
             QMessageBox.information(self, 'Информация', 'Данные отправлены на Веб сервер.')
         else:
             save_session_data(self.rd)
-            QMessageBox.warning(self, 'Ошибка', 'Невозможно записать данные на сервер, попробуйте позднее.\nДанные '
-                                                'будут записаны в БД на диске.\nПри появлении связи, при следующей '
-                                                'попытки соединении с сервером, эти данные будут записаны на сервер.')
+            QMessageBox.warning(
+                self, 'Ошибка', 'Невозможно записать данные на сервер, попробуйте позднее.\nДанные '
+                                'будут записаны в БД на диске.\nПри появлении связи, при следующей '
+                                'попытки соединении с сервером, эти данные будут записаны на сервер.'
+                )
 
     def onVideo(self):
         if self.save_video:
@@ -305,8 +316,6 @@ class MyWindow(QMainWindow):
             self.save_video = True
             self.thread.start_video()
             # print('Start video')
-
-
 
     ############################################################################
     #                                    Buttons                               #
@@ -338,17 +347,17 @@ class MyWindow(QMainWindow):
         self.ss_video.clicked.disconnect(self.thread.stop)
         self.ss_video.clicked.connect(self.ClickStartVideo)
         ######## update data #########################
-        self.rd.botanical_variety=self.widget_botanical_variety.text()  # currentText()
-        self.rd.declared_volume=str(self.widget_declared_volume.value())
-        self.rd.car=self.widget_truck.text() # currentText()
-        self.rd.gosnomer = self.widget_gosnomer.text() # currentText
-        self.rd.provider=self.widget_provider.text() # currentText()
-        self.rd.recipient=self.widget_recipient.text()
+        self.rd.botanical_variety = self.widget_botanical_variety.currentText()
+        self.rd.declared_volume = str(self.widget_declared_volume.value())
+        self.rd.car = self.widget_truck.currentText()
+        self.rd.gosnomer = self.widget_gosnomer.currentText
+        self.rd.provider = self.widget_provider.text()  # currentText()
+        self.rd.recipient = self.widget_recipient.text()
         # self.hr.direction = self.widget_direction.currentText()
-        self.rd.total_count=str(self.sizes['result'])
-        self.rd.large_caliber=str(self.sizes['big'])
-        self.rd.medium_caliber=str(self.sizes['middle'])
-        self.rd.small_caliber=str(self.sizes['small'])
+        self.rd.total_count = str(self.sizes['result'])
+        self.rd.large_caliber = str(self.sizes['big'])
+        self.rd.medium_caliber = str(self.sizes['middle'])
+        self.rd.small_caliber = str(self.sizes['small'])
         ######## classes ####################
         # self.rd.phytophthora=self.class_widgets[7].text()
         self.rd.strong = self.class_widgets[0].text()
@@ -371,7 +380,7 @@ class MyWindow(QMainWindow):
         self.update_sizes(item_sorted)
         self.update_classes(class_sorted)
         qt_img = self.convert_cv_qt(cv_img)
-        self.image_label.setPixmap(qt_img) # show video
+        self.image_label.setPixmap(qt_img)  # show video
 
     def update_sizes(self, sizes):
         if len(sizes) > 0:
@@ -400,10 +409,9 @@ class MyWindow(QMainWindow):
     def fill_from_data(self):
         self.rd.operator_id = self.obj['operator_id']
         self.rd.operator_name = self.obj['operator_name']
-        self.rd.operator_surname =  self.obj['operator_surname']
-        self.rd.operator_patronymic =  self.obj['operator_patronymic']
+        self.rd.operator_surname = self.obj['operator_surname']
+        self.rd.operator_patronymic = self.obj['operator_patronymic']
         self.hr(ip_address=self.obj['ip_address'], port=self.obj['port'])
-
 
 
 if __name__ == '__main__':

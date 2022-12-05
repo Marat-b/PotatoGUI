@@ -89,12 +89,16 @@ class LoginWindow(QDialog):
             self.widget_button_users.setEnabled(True)
             self._data['token'] = token.Value
             # OptionService.update_option('token', token)
-            self.users = self.hr.get_check(self._data['token'])
-            print(f'self.users={self.users}')
-            if self.users is not None:
-                for i, user in enumerate(self.users):
-                    print(f'user_id={user["id"]}')
-                    self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
+            self.point_data = self.hr.get_check(self._data['token'])
+            if self.point_data is not None:
+                self.users = self.point_data["users"]
+                self._data['cars'] = self.point_data["cars"]
+                self._data['nomenclatures'] = self.point_data["nomenclatures"]
+                print(f'self.users={self.users}')
+                if self.users is not None:
+                    for i, user in enumerate(self.users):
+                        print(f'user_id={user["id"]}')
+                        self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
 
     def onPincode(self):
         self.hr(ip_address=self.widget_ipaddress.text(), port=self.widget_ipport.text())
@@ -108,12 +112,16 @@ class LoginWindow(QDialog):
             self._data['ip_address'] = self.widget_ipaddress.text()
             self._data['port'] = self.widget_ipport.text()
 
-            self.users = self.hr.get_check(self._data['token'])
-            if len(self.users) > 0:
-                self.widget_users.clear()
-            for i, user in enumerate(self.users):
-                print(f'user_id={user["id"]}')
-                self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
+            self.point_data = self.hr.get_check(self._data['token'])
+            if self.point_data is not None:
+                self.users = self.point_data["users"]
+                self._data['cars'] = self.point_data["cars"]
+                self._data['nomenclatures'] = self.point_data["nomenclatures"]
+                if len(self.users) > 0:
+                    self.widget_users.clear()
+                for i, user in enumerate(self.users):
+                    print(f'user_id={user["id"]}')
+                    self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
         else:
             # box = QMessageBox.warning(self, 'Внимание', 'Пинкод не верен или нет связи')
             box = QMessageBox()
@@ -134,7 +142,7 @@ class LoginWindow(QDialog):
         print(f'self.widget_users.itemData={self.widget_users.itemData(current_index)}')
         print(f"self.users[current_index]['phone']={self.users[current_index]['phone']}")
         self._data['operator_id'] = self.users[current_index]['id'] #self.widget_users.itemData(
-            # self.widget_users.currentIndex())
+        self._data['current_client'] = self.users[current_index]['current_client']
         password = {'password': ''}
         pw = PasswordWindow(password)
         pw.exec()

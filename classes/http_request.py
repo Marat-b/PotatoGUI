@@ -55,7 +55,7 @@ class HttpRequest():
             if response.status_code == 200:
                 r = response.json()
                 # print(f'response={r}')
-                return r["users"]
+                return r
             else:
                 print(f'Status code={response.status_code}')
                 return None
@@ -110,6 +110,23 @@ class HttpRequest():
             print(f'Error is {e}')
             return None
 
+    def get_check_dashboard(self, token, current_client_id):
+        print(f'current_client_id={current_client_id}')
+        res = requests.post(
+            f'http://{self.ip_address}/api/auth/check',
+            data=json.dumps({"client": current_client_id, "path": "/client/dashboard"}),
+            headers={
+                "Authorization": f"Bearer {token}", "Content-type": "application/json", "Accept":
+                    "text/plain"
+            }
+        )
+        print(f'get_check_dashboard res={res}')
+        if res.status_code == 200:
+            r = res.json()
+            print(f'get_check_dashboard r={r}')
+            return r['client']['legal']['name']
+        else:
+            return None
 
 
 
