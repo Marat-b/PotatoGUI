@@ -112,7 +112,7 @@ class PrintWindow(QDialog):
         print(f'_data={_data}')
         # data =hr.get_analisis_list(self.token, {'page': '1', 'limit': '10', 'exclude_type': '4'})
         response = hr.get_analisis_list(
-            self._data['token'],
+            self._data['user_token'],
              _data
         )
 
@@ -220,8 +220,7 @@ if __name__ == '__main__':
         'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' \
                  '.eyJpZCI6IjYyZWNmNjhlOWMyZjlmNzJiMGQ5ODlkZCIsIm5iZiI6MTY1OTY5NjgzNSwiZXhwIjoyMTIzMjMyODM1LCJpc3MiOiJNeUF1dGhTZXJ2ZXIiLCJhdWQiOiJNeUF1dGhTZXJ2ZXIifQ.RDvIfJ8qEXqh-pEozX0hzAHhsjMfNMQgQoB13gAq_Kg',
         'ip_address': 'erp.bk-nt.ru',
-        'user_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
-            '.eyJpZCI6IjYyZWNmMzA0OWMyZjlmNzJiMGQ5ODljYiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiLQkNC00LzQuNC90LjRgdGC0YDQsNGC0L7RgCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNjcwMDgxNDY0LCJleHAiOjE2NzAxNjc4NjQsImlzcyI6Ik15QXV0aFNlcnZlciIsImF1ZCI6Ik15QXV0aFNlcnZlciJ9.UcVSjHfUPbW0UWGBHsKSlSGG0d0y1yOeI4_nArPAxl8'
+        'user_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZWNmM2Y4OWMyZjlmNzJiMGQ5ODlkMiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiLQkNGA0YLQtdC8IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJuYmYiOjE2NzAyMjU5OTksImV4cCI6MTY3MDMxMjM5OSwiaXNzIjoiTXlBdXRoU2VydmVyIiwiYXVkIjoiTXlBdXRoU2VydmVyIn0.cRy4DNsv0G_loXnC8D6aBRl9NOHfMrfE2MGtlL_5YLc'
         }
 
 

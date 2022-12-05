@@ -54,7 +54,7 @@ class MyWindow(QMainWindow):
         # self.setStyleSheet("background-color: white;")
         # self.resize(1400, 800)
         self.frameGeometry().moveCenter(cent)
-        self.setWindowTitle('Potato MVP')
+        self.setWindowTitle('АРМ Оператора ССОРП')
         self.initWindow()
         self.initMenu()
 
