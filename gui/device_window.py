@@ -10,7 +10,7 @@ class DeviceWindow(QDialog):
         super(DeviceWindow, self).__init__(parent)
         self.setWindowTitle('Конвейер')
         self.initWindow()
-        self.switched = False
+        # self.switched = False
 
     def initWindow(self):
         layout = QGridLayout(self)
