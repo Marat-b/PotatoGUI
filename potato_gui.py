@@ -4,7 +4,7 @@ import time
 from PyQt5 import QtGui
 from PyQt5.QtMultimedia import QCameraInfo
 from PyQt5.QtWidgets import QAction, QCheckBox, QComboBox, QDesktopWidget, QGridLayout, QGroupBox, \
-    QLineEdit, QMainWindow, \
+    QHBoxLayout, QLineEdit, QMainWindow, \
     QMessageBox, QPushButton, \
     QSpinBox, QStatusBar, \
     QWidget, \
@@ -78,29 +78,33 @@ class MyWindow(QMainWindow):
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
 
-        # Button to start video
+        ############################## Button to start video
+        group_button = QGroupBox()
+        group_button.setLayout(QHBoxLayout())
+        self.layout.addWidget(group_button, 7, 8)
+
         self.ss_video = QPushButton(self)
         self.ss_video.setText('Начать')
-        self.layout.addWidget(self.ss_video, 7, 8)
+        group_button.layout().addWidget(self.ss_video)
         self.ss_video.clicked.connect(self.ClickStartVideo)
 
         self.btn_http = QPushButton('Отправить')
-        self.layout.addWidget(self.btn_http, 7, 9)
+        group_button.layout().addWidget(self.btn_http)
         self.btn_http.clicked.connect(self.onRequest)
         self.btn_http.setEnabled(False)
 
         self.btn_print = QPushButton('Печать')
-        self.layout.addWidget(self.btn_print, 7, 10)
+        group_button.layout().addWidget(self.btn_print)
         self.btn_print.clicked.connect(self.onPrint)
 
         self.btn_clear = QPushButton('Очистить')
-        self.layout.addWidget(self.btn_clear, 7, 11)
+        group_button.layout().addWidget(self.btn_clear)
         self.btn_clear.clicked.connect(self.onClear)
 
         # Quit button
         self.btn_quit = QPushButton(self)
         self.btn_quit.setText('Выход')
-        self.layout.addWidget(self.btn_quit, 7, 12)
+        group_button.layout().addWidget(self.btn_quit)
         self.btn_quit.clicked.connect(self.onClose)
 
         # Video
@@ -140,9 +144,15 @@ class MyWindow(QMainWindow):
             groupbox_sick.layout().addWidget(self.class_widgets[i], x + i, 4)
 
         # #########################################################################
+        self.operator = QLabel(
+            f'Оператор: {self.obj["operator_name"]} {self.obj["operator_patronymic"]} '
+            f'{self.obj["operator_surname"]}'
+            )
+        self.layout.addWidget(self.operator, 0, 8)
+
         groupbox = QGroupBox('Параметры')
         groupbox.setLayout(QGridLayout())
-        self.layout.addWidget(groupbox, 0, 8, 1, 4)
+        self.layout.addWidget(groupbox, 1, 8)
 
         groupbox.layout().addWidget(QLabel('Сорт картофеля'), 0, 0)
         self.widget_botanical_variety = QComboBox()
@@ -246,6 +256,8 @@ class MyWindow(QMainWindow):
             QMessageBox.warning(self, 'Предупреждение', 'Пользователь не сменен.')
         else:
             QMessageBox.information(self, 'Информация', 'Пользователь сменен.')
+            self.operator.setText( f'Оператор: {self.obj["operator_name"]} {self.obj["operator_patronymic"]} '
+            f'{self.obj["operator_surname"]}')
         if self.obj['password'] == '0':
             QMessageBox.warning(self, 'Предупреждение', 'Пользователь ввёл не правильный пароль.')
 
@@ -354,7 +366,7 @@ class MyWindow(QMainWindow):
         self.rd.car = self.widget_truck.currentText()
         self.rd.gosnomer = self.widget_gosnomer.currentText
         self.rd.provider = self.widget_provider.text()  # currentText()
-        self.rd.recipient = self.widget_recipient.text()
+        self.rd.recipient = self.widget_recipient.currentText()
         # self.hr.direction = self.widget_direction.currentText()
         self.rd.total_count = str(self.sizes['result'])
         self.rd.large_caliber = str(self.sizes['big'])

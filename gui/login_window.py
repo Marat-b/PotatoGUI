@@ -163,8 +163,8 @@ class LoginWindow(QDialog):
     def fill_data(self):
         try:
             words = self.widget_users.currentText().split(' ')
-            self._data['operator_name'] = words[0]
-            self._data['operator_surname'] = words[1]
+            self._data['operator_name'] = words[1]
+            self._data['operator_surname'] = words[0]
             self._data['operator_patronymic'] = words[2]
 
         except:
