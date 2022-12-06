@@ -180,7 +180,8 @@ class MyWindow(QMainWindow):
         groupbox.layout().addWidget(self.widget_provider, 4, 1)
 
         groupbox.layout().addWidget(QLabel('Получатель'), 5, 0)
-        self.widget_recipient = QLineEdit(self, placeholderText='Название компании')
+        self.widget_recipient = QComboBox()
+        self.widget_recipient.setEditable(True)
         groupbox.layout().addWidget(self.widget_recipient, 5, 1)
 
         groupbox.layout().addWidget(QLabel('Направление'), 6, 0)
@@ -204,6 +205,7 @@ class MyWindow(QMainWindow):
         dashboard_data = self.hr.get_check_dashboard(self.obj['user_token'], self.obj['current_client'])
         if dashboard_data is not None:
             print(f'dashboard_data={dashboard_data}')
+            self.widget_recipient.addItem(dashboard_data['short'], 0)
 
     def initMenu(self):
         menuBar = self.menuBar()
