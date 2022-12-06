@@ -78,7 +78,7 @@ class MyWindow(QMainWindow):
         self.widget = QWidget()
         self.widget.setLayout(self.layout)
 
-        ############################## Button to start video
+        ############################## Button to start video ##################
         group_button = QGroupBox()
         group_button.setLayout(QHBoxLayout())
         self.layout.addWidget(group_button, 7, 8)
@@ -106,13 +106,15 @@ class MyWindow(QMainWindow):
         self.btn_quit.setText('Выход')
         group_button.layout().addWidget(self.btn_quit)
         self.btn_quit.clicked.connect(self.onClose)
+        #######################################################################
 
-        # Video
+        #################### Video ############################################
         self.image_label = QLabel(self)
         self.disply_width = 640
         self.display_height = 480
         self.image_label.setStyleSheet("background : black;")
         self.layout.addWidget(self.image_label, 0, 0, 8, 8)
+        #######################################################################
 
         self.layout.addWidget(QLabel('Р Е З У Л Ь Т А Т Ы'), 9, 2, 1, 3)
 
@@ -143,7 +145,7 @@ class MyWindow(QMainWindow):
             self.class_widgets[i] = QLabel('0')
             groupbox_sick.layout().addWidget(self.class_widgets[i], x + i, 4)
 
-        # #########################################################################
+        # ######################## Parameters ##################################
         self.operator = QLabel(
             f'Оператор: {self.obj["operator_name"]} {self.obj["operator_patronymic"]} '
             f'{self.obj["operator_surname"]}'

@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QComboBox, QDesktopWidget, QDialog, QF
 
 from classes.http_request import HttpRequest
 from db.services.option_service import OptionService
+from db.services.parameter_service import ParameterService
 from gui.password_window import PasswordWindow
 
 SERVER_IPADDRESS = 'server_ipaddress'
@@ -99,6 +100,11 @@ class LoginWindow(QDialog):
                     for i, user in enumerate(self.users):
                         print(f'user_id={user["id"]}')
                         self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
+                # save pararmeters to db
+                ParameterService.save_cards(self.point_data["cars"])
+            else:
+                brands, models= ParameterService.get_cards()
+                print(f'brands={brands}, models={models}')
 
     def onPincode(self):
         self.hr(ip_address=self.widget_ipaddress.text(), port=self.widget_ipport.text())
@@ -122,6 +128,8 @@ class LoginWindow(QDialog):
                 for i, user in enumerate(self.users):
                     print(f'user_id={user["id"]}')
                     self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
+                    # save pararmeters to db
+                    ParameterService.save_cards(self.point_data["cars"])
         else:
             # box = QMessageBox.warning(self, 'Внимание', 'Пинкод не верен или нет связи')
             box = QMessageBox()
