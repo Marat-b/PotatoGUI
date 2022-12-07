@@ -313,6 +313,7 @@ class MyWindow(QMainWindow):
             lw.exec()
             # self.rd.operator_id = self.obj['operator_id']
             self.fill_from_data()
+        print(f'self.rd={self.rd.data}')
         if self.obj['password'] == '1':
             ret = self.hr.send_request(self.obj['token'], self.rd.data)
         else:
@@ -373,7 +374,7 @@ class MyWindow(QMainWindow):
         self.rd.botanical_variety = self.widget_botanical_variety.currentText()
         self.rd.declared_volume = str(self.widget_declared_volume.value())
         self.rd.car = self.widget_truck.currentText()
-        self.rd.gosnomer = self.widget_gosnomer.currentText
+        self.rd.gosnomer = self.widget_gosnomer.currentText()
         self.rd.provider = self.widget_provider.text()  # currentText()
         self.rd.recipient = self.widget_recipient.currentText()
         # self.hr.direction = self.widget_direction.currentText()

@@ -87,19 +87,20 @@ class HttpRequest():
                 headers={"Authorization": f"Bearer {token}", "Content-type": "application/json", "Accept":
                     "text/plain"}
             )
-            # print(f'resp={res}')
+            print(f'resp={res}')
             if res.status_code == 200:
                 r = res.json()
                 check_token = r['token']
-                # print(f'2 check_torken={check_token}')
+                print(f'2 check_torken={check_token}')
                 my_headers = {'Authorization': f'Bearer {check_token}', 'Content-type': 'application/json', 'Accept':
                     'text/plain'}
                 # headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
                 response = requests.post(f'http://{self.ip_address}/api/analysis/list',
                                          data=json.dumps(data), headers=my_headers)
-                # print(f'response={response}')
+                print(f'get_analisis_list response={response}')
                 if response.status_code == 200:
                     r = response.json()
+                    print(f'get_analisis_list r={r}')
                     return r
                 else:
                     # print(f'Status code={response.status_code}')

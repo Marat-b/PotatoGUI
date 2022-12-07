@@ -94,7 +94,7 @@ class LoginWindow(QDialog):
             self.point_data = self.hr.get_check(self._data['token'])
             if self.point_data is not None:
                 self.users = self.point_data["users"]
-                # self._data['cars'] = self.point_data["cars"]
+                self._data['current_client'] = self.point_data["configuration"]["client"]
                 # self._data['nomenclatures'] = self.point_data["nomenclatures"]
                 print(f'self.users={self.users}')
                 if self.users is not None:
@@ -120,7 +120,7 @@ class LoginWindow(QDialog):
             self.point_data = self.hr.get_check(self._data['token'])
             if self.point_data is not None:
                 self.users = self.point_data["users"]
-                # self._data['cars'] = self.point_data["cars"]
+                self._data['current_client'] = self.point_data["configuration"]["client"]
                 # self._data['nomenclatures'] = self.point_data["nomenclatures"]
                 if len(self.users) > 0:
                     self.widget_users.clear()
@@ -150,7 +150,7 @@ class LoginWindow(QDialog):
         print(f'self.widget_users.itemData={self.widget_users.itemData(current_index)}')
         print(f"self.users[current_index]['phone']={self.users[current_index]['phone']}")
         self._data['operator_id'] = self.users[current_index]['id'] #self.widget_users.itemData(
-        self._data['current_client'] = self.users[current_index]['current_client']
+        # self._data['current_client'] = self.users[current_index]['current_client']
         password = {'password': ''}
         pw = PasswordWindow(password)
         pw.exec()
@@ -161,7 +161,7 @@ class LoginWindow(QDialog):
             print('password is true')
             self._data['password'] = '1'
             self._data['user_token'] = ret['token']
-            dashboard_data = self.hr.get_check_dashboard(ret['token'], self.users[current_index]['current_client'])
+            dashboard_data = self.hr.get_check_dashboard(ret['token'], self._data['current_client'])
             if dashboard_data is not None:
                 ParameterService.save_recipient(dashboard_data['short'])
         else:

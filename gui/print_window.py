@@ -118,7 +118,7 @@ class PrintWindow(QDialog):
         )
 
         data_list = []
-        # print(f'data={response["data"]}')
+        print(f'response={response}')
         if response is not None:
             for item in response["data"]:
                 data = {}
