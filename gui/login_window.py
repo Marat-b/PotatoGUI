@@ -163,7 +163,8 @@ class LoginWindow(QDialog):
             self._data['user_token'] = ret['token']
             dashboard_data = self.hr.get_check_dashboard(ret['token'], self._data['current_client'])
             if dashboard_data is not None:
-                ParameterService.save_recipient(dashboard_data['short'])
+                self._data['user_token'] = dashboard_data['token']
+                ParameterService.save_recipient(dashboard_data['client']['legal']['name']['short'])
         else:
             print('password is false')
         self.fill_data()
