@@ -22,6 +22,7 @@ from config.create_dirs import create_dirs
 from db.app_database import create_db_and_tables
 from db.save_session_data import save_session_data
 from db.send_session_data import send_session_data
+from db.services.parameter_service import ParameterService
 from gui.checklink_window import ChecklinkWindow
 from gui.device_window import DeviceWindow
 from gui.login_window import LoginWindow
@@ -45,7 +46,7 @@ class MyWindow(QMainWindow):
         self.obj = {
             'token': None, 'operator_id': '', 'operator_name': '', 'operator_surname': '',
             'operator_patronymic': '', 'ip_address': '', 'port': '', 'password': '0', 'user_token': '',
-            'cars': [], 'nomenclatures': [], 'current_client': ''
+             'current_client': ''
         }
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
         self.save_video = False
@@ -159,8 +160,10 @@ class MyWindow(QMainWindow):
         groupbox.layout().addWidget(QLabel('Сорт картофеля'), 0, 0)
         self.widget_botanical_variety = QComboBox()
         # self.widget_botanical_variety = QLineEdit(self, placeholderText='Название сорта картофеля')
-        for i, nomenclature in enumerate(self.obj["nomenclatures"]):
-            self.widget_botanical_variety.addItem(nomenclature["name"], i)
+        nomenclatures = ParameterService.get_nomenclatures()
+        print(f'nomenclatures={nomenclatures}')
+        for i, nomenclature in enumerate(nomenclatures):
+            self.widget_botanical_variety.addItem(nomenclature, i)
         self.widget_botanical_variety.setEditable(True)
         groupbox.layout().addWidget(self.widget_botanical_variety, 0, 1)
 
@@ -171,16 +174,19 @@ class MyWindow(QMainWindow):
         groupbox.layout().addWidget(QLabel('Транспортное средство'), 2, 0)
         self.widget_truck = QComboBox()
         # self.widget_truck = QLineEdit(self, placeholderText='Марка автомобиля')
-        for i, car in enumerate(self.obj['cars']):
-            self.widget_truck.addItem(f'{car["brand"]} {car["model"]}', i)
+        brands, models, gosnumbers = ParameterService.get_cars()
+        # for i, car in enumerate(self.obj['cars']):
+        for i, (brand, model) in enumerate(zip(brands, models)):
+            # self.widget_truck.addItem(f'{car["brand"]} {car["model"]}', i)
+            self.widget_truck.addItem(f'{brand} {model}', i)
         self.widget_truck.setEditable(True)
         groupbox.layout().addWidget(self.widget_truck, 2, 1)
 
         groupbox.layout().addWidget(QLabel('Гос. номер'), 3, 0)
         # self.widget_gosnomer = QLineEdit(self, placeholderText='Гос. номер автомобиля')
         self.widget_gosnomer = QComboBox()
-        for i, car in enumerate(self.obj['cars']):
-            self.widget_gosnomer.addItem(f'{car["gosnumber"]}', i)
+        for i, gosnumber in enumerate(gosnumbers):
+            self.widget_gosnomer.addItem(f'{gosnumber}', i)
         self.widget_gosnomer.setEditable(True)
         groupbox.layout().addWidget(self.widget_gosnomer, 3, 1)
 
@@ -214,10 +220,11 @@ class MyWindow(QMainWindow):
         self.setStatusBar(self.status)  # Adding status bar to the main window
         self.status.showMessage('Готово к работе...')
 
-        dashboard_data = self.hr.get_check_dashboard(self.obj['user_token'], self.obj['current_client'])
-        if dashboard_data is not None:
-            print(f'dashboard_data={dashboard_data}')
-            self.widget_recipient.addItem(dashboard_data['short'], 0)
+        # dashboard_data = self.hr.get_check_dashboard(self.obj['user_token'], self.obj['current_client'])
+        recipient = ParameterService.get_recipient()
+        if recipient is not None:
+            print(f'recipient={recipient}')
+            self.widget_recipient.addItem(recipient, 0)
 
     def initMenu(self):
         menuBar = self.menuBar()

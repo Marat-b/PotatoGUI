@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QComboBox, QDesktopWidget, QDialog, QF
     QWidget
 
 from classes.http_request import HttpRequest
+from db.app_database import create_db_and_tables
 from db.services.option_service import OptionService
 from db.services.parameter_service import ParameterService
 from gui.password_window import PasswordWindow
@@ -93,18 +94,16 @@ class LoginWindow(QDialog):
             self.point_data = self.hr.get_check(self._data['token'])
             if self.point_data is not None:
                 self.users = self.point_data["users"]
-                self._data['cars'] = self.point_data["cars"]
-                self._data['nomenclatures'] = self.point_data["nomenclatures"]
+                # self._data['cars'] = self.point_data["cars"]
+                # self._data['nomenclatures'] = self.point_data["nomenclatures"]
                 print(f'self.users={self.users}')
                 if self.users is not None:
                     for i, user in enumerate(self.users):
                         print(f'user_id={user["id"]}')
                         self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
                 # save pararmeters to db
-                ParameterService.save_cards(self.point_data["cars"])
-            else:
-                brands, models= ParameterService.get_cards()
-                print(f'brands={brands}, models={models}')
+                ParameterService.save_cars(self.point_data["cars"])
+                ParameterService.save_nomenclatures(self.point_data["nomenclatures"])
 
     def onPincode(self):
         self.hr(ip_address=self.widget_ipaddress.text(), port=self.widget_ipport.text())
@@ -121,15 +120,16 @@ class LoginWindow(QDialog):
             self.point_data = self.hr.get_check(self._data['token'])
             if self.point_data is not None:
                 self.users = self.point_data["users"]
-                self._data['cars'] = self.point_data["cars"]
-                self._data['nomenclatures'] = self.point_data["nomenclatures"]
+                # self._data['cars'] = self.point_data["cars"]
+                # self._data['nomenclatures'] = self.point_data["nomenclatures"]
                 if len(self.users) > 0:
                     self.widget_users.clear()
                 for i, user in enumerate(self.users):
                     print(f'user_id={user["id"]}')
                     self.widget_users.addItem(f'{user["surname"]} {user["name"]} {user["patronymic"]}', i)
                     # save pararmeters to db
-                    ParameterService.save_cards(self.point_data["cars"])
+                    ParameterService.save_cars(self.point_data["cars"])
+                    ParameterService.save_nomenclatures(self.point_data["nomenclatures"])
         else:
             # box = QMessageBox.warning(self, 'Внимание', 'Пинкод не верен или нет связи')
             box = QMessageBox()
@@ -156,10 +156,14 @@ class LoginWindow(QDialog):
         pw.exec()
         print(f'self.password={password}')
         ret = self.hr.check_password(self.users[current_index]['phone'], password['password'])
+        # print(f'ret token={ret}')
         if ret is not None:
             print('password is true')
             self._data['password'] = '1'
             self._data['user_token'] = ret['token']
+            dashboard_data = self.hr.get_check_dashboard(ret['token'], self.users[current_index]['current_client'])
+            if dashboard_data is not None:
+                ParameterService.save_recipient(dashboard_data['short'])
         else:
             print('password is false')
         self.fill_data()
@@ -185,6 +189,7 @@ class LoginWindow(QDialog):
 
 if __name__ == "__main__":
     token = 'Zero'
+    create_db_and_tables()
     app = QApplication(sys.argv)
     win = LoginWindow(token)
     win.show()

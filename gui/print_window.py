@@ -113,6 +113,7 @@ class PrintWindow(QDialog):
         # data =hr.get_analisis_list(self.token, {'page': '1', 'limit': '10', 'exclude_type': '4'})
         response = hr.get_analisis_list(
             self._data['user_token'],
+            self._data['current_client'],
              _data
         )
 
