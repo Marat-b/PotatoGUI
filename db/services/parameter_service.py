@@ -62,18 +62,27 @@ class ParameterService:
         return nomenclatures_ret
 
     @staticmethod
-    def save_recipients(recipients):
-        recipient  = ';'.join(item['name'] for item in recipients)
+    def save_providers(providers):
+        provider = ';'.join(item['name'] for item in providers)
+        OptionService.update_option('provider', provider)
+
+    @staticmethod
+    def get_providers():
+        providers_ret = []
+        provider = OptionService.get_option('provider')
+        if provider is not None:
+            providers = provider.Value.split(';')
+            if type(providers) is list:
+                providers_ret = providers if len(providers) > 0 else []
+            else:
+                providers_ret = [providers]
+        return providers_ret
+
+    @staticmethod
+    def save_recipient(recipient):
         OptionService.update_option('recipient', recipient)
 
     @staticmethod
-    def get_recipients():
-        recipients_ret = []
+    def get_recipient():
         recipient = OptionService.get_option('recipient')
-        if recipient is not None:
-            recipients = recipient.Value.split(';')
-            if type(recipients) is list:
-                recipients_ret = recipients if len(recipients) > 0 else []
-            else:
-                recipients_ret = [recipients]
-        return recipients_ret
+        return recipient.Value if recipient is not None else None

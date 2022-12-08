@@ -194,12 +194,16 @@ class MyWindow(QMainWindow):
         self.widget_provider = QComboBox()
         # self.widget_provider = QLineEdit(self, placeholderText='Название компании')
         self.widget_provider.setEditable(True)
-        groupbox.layout().addWidget(self.widget_provider, 4, 1)
+        groupbox.layout().addWidget(self.widget_provider, 5, 1)
+
+        providers = ParameterService.get_providers()
+        for i, provider in enumerate(providers):
+            self.widget_provider.addItem(provider, i)
 
         groupbox.layout().addWidget(QLabel('Получатель'), 5, 0)
         self.widget_recipient = QComboBox()
         self.widget_recipient.setEditable(True)
-        groupbox.layout().addWidget(self.widget_recipient, 5, 1)
+        groupbox.layout().addWidget(self.widget_recipient, 4, 1)
 
         groupbox.layout().addWidget(QLabel('Направление'), 6, 0)
         self.widget_direction = QComboBox()
@@ -374,7 +378,7 @@ class MyWindow(QMainWindow):
         self.rd.declared_volume = str(self.widget_declared_volume.value())
         self.rd.car = self.widget_truck.currentText()
         self.rd.gosnomer = self.widget_gosnomer.currentText()
-        self.rd.provider = self.widget_provider.text()  # currentText()
+        self.rd.provider = self.widget_provider.currentText()
         self.rd.recipient = self.widget_recipient.currentText()
         # self.hr.direction = self.widget_direction.currentText()
         self.rd.total_count = str(self.sizes['result'])
