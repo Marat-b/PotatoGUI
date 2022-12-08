@@ -191,10 +191,9 @@ class MyWindow(QMainWindow):
         groupbox.layout().addWidget(self.widget_gosnomer, 3, 1)
 
         groupbox.layout().addWidget(QLabel('Поставщик'), 4, 0)
-        # self.widget_provider = QComboBox()
-        self.widget_provider = QLineEdit(self, placeholderText='Название компании')
-        # self.widget_provider.addItem('ООО Ромашка', 0)
-        # self.widget_provider.addItem('ООО Промокашка', 1)
+        self.widget_provider = QComboBox()
+        # self.widget_provider = QLineEdit(self, placeholderText='Название компании')
+        self.widget_provider.setEditable(True)
         groupbox.layout().addWidget(self.widget_provider, 4, 1)
 
         groupbox.layout().addWidget(QLabel('Получатель'), 5, 0)

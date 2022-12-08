@@ -104,6 +104,7 @@ class LoginWindow(QDialog):
                 # save pararmeters to db
                 ParameterService.save_cars(self.point_data["cars"])
                 ParameterService.save_nomenclatures(self.point_data["nomenclatures"])
+                ParameterService.save_recipients(self.point_data["recipients"])
 
     def onPincode(self):
         self.hr(ip_address=self.widget_ipaddress.text(), port=self.widget_ipport.text())
@@ -130,6 +131,7 @@ class LoginWindow(QDialog):
                     # save pararmeters to db
                     ParameterService.save_cars(self.point_data["cars"])
                     ParameterService.save_nomenclatures(self.point_data["nomenclatures"])
+                    ParameterService.save_recipients(self.point_data["recipients"])
         else:
             # box = QMessageBox.warning(self, 'Внимание', 'Пинкод не верен или нет связи')
             box = QMessageBox()
