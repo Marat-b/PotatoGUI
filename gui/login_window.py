@@ -23,6 +23,7 @@ class LoginWindow(QDialog):
         self._data = data
         self.ip_address = OptionService.get_option(SERVER_IPADDRESS)
         self.ip_port = OptionService.get_option(SERVER_PORT)
+        self.users = None
         if self.ip_address is not None:
             self.hr = HttpRequest(ip_address=self.ip_address.Value, port=self.ip_port.Value)
             self._data['ip_address'] = self.ip_address.Value
@@ -149,28 +150,29 @@ class LoginWindow(QDialog):
         current_index = self.widget_users.currentIndex()
         print(f'current_index={current_index}')
         print(f'self.users={self.users}')
-        print(f'self.widget_users.itemData={self.widget_users.itemData(current_index)}')
-        print(f"self.users[current_index]['phone']={self.users[current_index]['phone']}")
-        self._data['operator_id'] = self.users[current_index]['id'] #self.widget_users.itemData(
-        # self._data['current_client'] = self.users[current_index]['current_client']
-        password = {'password': ''}
-        pw = PasswordWindow(password)
-        pw.exec()
-        print(f'self.password={password}')
-        ret = self.hr.check_password(self.users[current_index]['phone'], password['password'])
-        # print(f'ret token={ret}')
-        if ret is not None:
-            print('password is true')
-            self._data['password'] = '1'
-            self._data['user_token'] = ret['token']
-            dashboard_data = self.hr.get_check_dashboard(ret['token'], self._data['current_client'])
-            if dashboard_data is not None:
-                self._data['user_token'] = dashboard_data['token']
-                ParameterService.save_recipient(dashboard_data['client']['legal']['name']['short'])
-        else:
-            print('password is false')
-        self.fill_data()
-        self.accept()
+        if self.users is not None:
+            print(f'self.widget_users.itemData={self.widget_users.itemData(current_index)}')
+            print(f"self.users[current_index]['phone']={self.users[current_index]['phone']}")
+            self._data['operator_id'] = self.users[current_index]['id'] #self.widget_users.itemData(
+            # self._data['current_client'] = self.users[current_index]['current_client']
+            password = {'password': ''}
+            pw = PasswordWindow(password)
+            pw.exec()
+            print(f'self.password={password}')
+            ret = self.hr.check_password(self.users[current_index]['phone'], password['password'])
+            # print(f'ret token={ret}')
+            if ret is not None:
+                print('password is true')
+                self._data['password'] = '1'
+                self._data['user_token'] = ret['token']
+                dashboard_data = self.hr.get_check_dashboard(ret['token'], self._data['current_client'])
+                if dashboard_data is not None:
+                    self._data['user_token'] = dashboard_data['token']
+                    ParameterService.save_recipient(dashboard_data['client']['legal']['name']['short'])
+            else:
+                print('password is false')
+            self.fill_data()
+            self.accept()
 
     def accept(self):
         super().accept()
