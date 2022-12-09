@@ -318,6 +318,7 @@ class MyWindow(QMainWindow):
             self.fill_from_data()
         print(f'self.rd={self.rd.data}')
         if self.obj['password'] == '1':
+            self.hr(ip_address=self.obj['ip_address'], port=self.obj['port'])
             ret = self.hr.send_request(self.obj['token'], self.rd.data)
         else:
             # password is not entered by user

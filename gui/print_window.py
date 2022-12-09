@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication, QComboBox, QDialog, QFileDialog, QGrid
     QSpinBox, QTextEdit, QVBoxLayout, QWidget
 
 from classes.http_request import HttpRequest
+from classes.offline_print import OfflinePrint
 from utils.utils import utc_str_to_local_str
 
 
@@ -129,6 +130,10 @@ class PrintWindow(QDialog):
                 data['start_date'] = utc_str_to_local_str(item['start_date'])
                 data['start_time'] = item['start_time']
                 data_list.append(data)
+        else:
+            # offlime printing
+            data_list = OfflinePrint.get_data(int(limit))
+            print(f'offlineprint data_list={data_list}')
         # print(f'data_list={data_list}')
         return data_list
 

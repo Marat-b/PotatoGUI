@@ -86,3 +86,12 @@ class ParameterService:
     def get_recipient():
         recipient = OptionService.get_option('recipient')
         return recipient.Value if recipient is not None else None
+
+    @staticmethod
+    def save_address(item):
+        OptionService.update_option('address', item)
+
+    @staticmethod
+    def get_address():
+        item = OptionService.get_option('address')
+        return item.Value if item is not None else ''
