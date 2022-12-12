@@ -18,6 +18,7 @@ from PyQt5.QtCore import Qt
 from classes.http_request import HttpRequest
 from classes.request_data import RequestData
 from classes.video_thread_oak import VideoThread
+from config.config import DISPLAY_HEIGHT, DISPLAY_WIDTH
 from config.create_dirs import create_dirs
 from db.app_database import create_db_and_tables
 from db.save_session_data import save_session_data
@@ -48,6 +49,7 @@ class MyWindow(QMainWindow):
             'operator_patronymic': '', 'ip_address': '', 'port': '', 'password': '0', 'user_token': '',
              'current_client': ''
         }
+        self.ready_to_save = False # ready to save to database
         self.available_cameras = QCameraInfo.availableCameras()  # Getting available cameras
         self.save_video = False
         self.thread = VideoThread()
@@ -111,8 +113,8 @@ class MyWindow(QMainWindow):
 
         #################### Video ############################################
         self.image_label = QLabel(self)
-        self.disply_width = 640
-        self.display_height = 480
+        self.disply_width = 600 # 640
+        self.display_height = 600 #480
         self.image_label.setStyleSheet("background : black;")
         self.layout.addWidget(self.image_label, 0, 0, 8, 8)
         #######################################################################
@@ -310,30 +312,32 @@ class MyWindow(QMainWindow):
         pw.exec()
 
     def onRequest(self):
-        print(f"obj[token]={self.obj['token']}")
-        if self.obj['token'] is None or self.obj['password'] == '0':
-            lw = LoginWindow(self.obj)
-            lw.exec()
-            # self.rd.operator_id = self.obj['operator_id']
-            self.fill_from_data()
-        print(f'self.rd={self.rd.data}')
-        if self.obj['password'] == '1':
-            self.hr(ip_address=self.obj['ip_address'], port=self.obj['port'])
-            ret = self.hr.send_request(self.obj['token'], self.rd.data)
-        else:
-            # password is not entered by user
-            ret = False
-        print(f'ret={ret}')
-        if ret:
-            send_session_data(self.hr, self.obj)
-            QMessageBox.information(self, 'Информация', 'Данные отправлены на Веб сервер.')
-        else:
-            save_session_data(self.rd)
-            QMessageBox.warning(
-                self, 'Ошибка', 'Невозможно записать данные на сервер, попробуйте позднее.\nДанные '
-                                'будут записаны в БД на диске.\nПри появлении связи, при следующей '
-                                'попытки соединении с сервером, эти данные будут записаны на сервер.'
-                )
+        if self.ready_to_save:
+            print(f"obj[token]={self.obj['token']}")
+            if self.obj['token'] is None or self.obj['password'] == '0':
+                lw = LoginWindow(self.obj)
+                lw.exec()
+                # self.rd.operator_id = self.obj['operator_id']
+                self.fill_from_data()
+            print(f'self.rd={self.rd.data}')
+            if self.obj['password'] == '1':
+                self.hr(ip_address=self.obj['ip_address'], port=self.obj['port'])
+                ret = self.hr.send_request(self.obj['token'], self.rd.data)
+            else:
+                # password is not entered by user
+                ret = False
+            print(f'ret={ret}')
+            if ret:
+                send_session_data(self.hr, self.obj)
+                QMessageBox.information(self, 'Информация', 'Данные отправлены на Веб сервер.')
+            else:
+                save_session_data(self.rd)
+                QMessageBox.warning(
+                    self, 'Ошибка', 'Невозможно записать данные на сервер, попробуйте позднее.\nДанные '
+                                    'будут записаны в БД на диске.\nПри появлении связи, при следующей '
+                                    'попытки соединении с сервером, эти данные будут записаны на сервер.'
+                    )
+            self.ready_to_save = False
 
     def onVideo(self):
         if self.save_video:
@@ -350,6 +354,7 @@ class MyWindow(QMainWindow):
     ############################################################################
     # Activates when Start/Stop video button is clicked to Start (ss_video
     def ClickStartVideo(self):
+        self.ready_to_save = True
         self.btn_http.setEnabled(True)
         self.rd.start_date = str(datetime.date.today())
         self.rd.start_time = time.strftime('%H:%M', time.localtime())
@@ -430,7 +435,8 @@ class MyWindow(QMainWindow):
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
         convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
-        p = convert_to_Qt_format.scaled(self.disply_width, self.display_height, Qt.KeepAspectRatio)
+        # p = convert_to_Qt_format.scaled(self.disply_width, self.display_height, Qt.KeepAspectRatio)
+        p = convert_to_Qt_format.scaled(DISPLAY_WIDTH, DISPLAY_HEIGHT, Qt.KeepAspectRatio)
         # p = convert_to_Qt_format.scaled(801, 801, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
