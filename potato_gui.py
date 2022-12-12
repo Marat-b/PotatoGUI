@@ -121,11 +121,14 @@ class MyWindow(QMainWindow):
         self.layout.addWidget(self.image_label, 0, 0, 8, 8)
         #######################################################################
 
-        self.layout.addWidget(QLabel('Р Е З У Л Ь Т А Т Ы'), 9, 2, 1, 3)
+        # self.layout.addWidget(QLabel(), 9, 2, 1, 3)
+        group_results = QGroupBox('Р Е З У Л Ь Т А Т Ы')
+        group_results.setLayout(QHBoxLayout())
+        self.layout.addWidget(group_results, 9, 0, 1, 9)
 
         groupbox_size = QGroupBox('Размеры')
         groupbox_size.setLayout(QGridLayout())
-        self.layout.addWidget(groupbox_size, 10, 0, 1, 4)
+        group_results.layout().addWidget(groupbox_size) #, 10, 0, 1, 4
 
         groupbox_size.layout().addWidget(QLabel('Общее количество'), 0, 0, 1, 3)
         self.result = QLabel('0')
@@ -143,7 +146,7 @@ class MyWindow(QMainWindow):
         x = 0
         groupbox_sick = QGroupBox('Состояние')
         groupbox_sick.setLayout(QGridLayout())
-        self.layout.addWidget(groupbox_sick, 10, 5, 1, 4)
+        group_results.layout().addWidget(groupbox_sick) #, 10, 5, 1, 4
         self.class_widgets = {}
         for i, class_name in enumerate(self.class_names_ru):
             groupbox_sick.layout().addWidget(QLabel(class_name), x + i, 0, 1, 3)
@@ -218,7 +221,7 @@ class MyWindow(QMainWindow):
         # ------------- check box -----------------------------
         self.chk_video = QCheckBox(self)
         self.chk_video.setText('Запись видео')
-        self.layout.addWidget(self.chk_video, 11, 1)
+        self.layout.addWidget(self.chk_video, 11, 0)
         self.chk_video.clicked.connect(self.onVideo)
 
         # Status bar
