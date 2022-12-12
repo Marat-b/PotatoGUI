@@ -6,7 +6,7 @@ from classes.drawer_depth import Drawer
 from classes.entity import Entity
 from classes.identity import Identity
 from classes.mask import Mask
-from config.config import DEEPSORT, DETECTRON2, DISPLAY, NUM_CLASSES, USE_CUDA
+from config.config import DEEPSORT, DETECTRON2, NUM_CLASSES, USE_CUDA
 from deep_sort import DeepSort
 from classes.calculator2 import Calculator2
 from classes.measurement_depth import Measurement
@@ -19,7 +19,7 @@ class Detector(object):
         # self.class_names = ['strong', 'alternariosis', 'anthracnose', 'fomosis', 'fusarium', 'internalrot',
         #                     'necrosis', 'phytophthorosis', 'pinkrot', 'scab', 'wetrot']
         use_cuda = USE_CUDA
-        self.display = DISPLAY
+        # self.display = DISPLAY
         self.detectron2 = TorchscriptDetection(
             DETECTRON2,
             use_cuda=use_cuda

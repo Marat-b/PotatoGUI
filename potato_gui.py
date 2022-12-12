@@ -18,13 +18,15 @@ from PyQt5.QtCore import Qt
 from classes.http_request import HttpRequest
 from classes.request_data import RequestData
 from classes.video_thread_oak import VideoThread
-from config.config import DISPLAY_HEIGHT, DISPLAY_WIDTH
+# from config.config import DISPLAY_HEIGHT, DISPLAY_WIDTH
 from config.create_dirs import create_dirs
 from db.app_database import create_db_and_tables
 from db.save_session_data import save_session_data
 from db.send_session_data import send_session_data
+from db.services.config_service import ConfigService
 from db.services.parameter_service import ParameterService
 from gui.checklink_window import ChecklinkWindow
+from gui.config_window import ConfigWindow
 from gui.device_window import DeviceWindow
 from gui.login_window import LoginWindow
 from gui.nn_window import NnWindow
@@ -113,8 +115,8 @@ class MyWindow(QMainWindow):
 
         #################### Video ############################################
         self.image_label = QLabel(self)
-        self.disply_width = 600 # 640
-        self.display_height = 600 #480
+        self.disply_width = ConfigService.get_video_width() # 640
+        self.display_height = ConfigService.get_video_height() #480
         self.image_label.setStyleSheet("background : black;")
         self.layout.addWidget(self.image_label, 0, 0, 8, 8)
         #######################################################################
@@ -252,7 +254,11 @@ class MyWindow(QMainWindow):
         checklinkAction.triggered.connect(self.onCheckLink)
         checklinkAction.setStatusTip('Проверка связи с сервером')
 
-        parameters.addActions([checklinkAction, deviceAction, nnAction])
+        optionAction = QAction('Опции..', self)
+        optionAction.triggered.connect(self.onOption)
+        optionAction.setStatusTip('Опции..')
+
+        parameters.addActions([checklinkAction, deviceAction, nnAction, optionAction])
 
     ######################################################################
     #                                   Events                           #
@@ -306,6 +312,10 @@ class MyWindow(QMainWindow):
     def onNn(self):
         n = NnWindow()
         n.exec()
+
+    def onOption(self):
+        config = ConfigWindow()
+        config.exec()
 
     def onPrint(self):
         pw = PrintWindow(self.obj)
@@ -435,8 +445,8 @@ class MyWindow(QMainWindow):
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
         convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
-        # p = convert_to_Qt_format.scaled(self.disply_width, self.display_height, Qt.KeepAspectRatio)
-        p = convert_to_Qt_format.scaled(DISPLAY_WIDTH, DISPLAY_HEIGHT, Qt.KeepAspectRatio)
+        p = convert_to_Qt_format.scaled(self.disply_width, self.display_height, Qt.KeepAspectRatio)
+        # p = convert_to_Qt_format.scaled(DISPLAY_WIDTH, DISPLAY_HEIGHT, Qt.KeepAspectRatio)
         # p = convert_to_Qt_format.scaled(801, 801, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 

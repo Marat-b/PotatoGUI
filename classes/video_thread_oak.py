@@ -1,4 +1,3 @@
-import array
 import datetime
 import os
 
@@ -8,7 +7,7 @@ import numpy as np
 import cv2
 import depthai as dai
 
-from config.config import VIDEO_PATH
+from db.services.config_service import ConfigService
 from depth.main_stream_depth import Detector
 
 
@@ -20,6 +19,7 @@ class VideoThread(QThread):
         self._run_flag = True
         self.detector = Detector()
         self.save_video = False
+        self.video_path = ConfigService.get_video_path()
         self.video_writer = None
         self.video_writer_detected = None
 
@@ -80,8 +80,8 @@ class VideoThread(QThread):
         counter = 1
         count = 0
         # ----------- video writer ________________________________________________________________
-        file_name = os.path.join(VIDEO_PATH, 'raw_video{}.mp4'.format(self._get_ymd()))
-        file_name2 = os.path.join(VIDEO_PATH, 'detected_video{}.mp4'.format(self._get_ymd()))
+        file_name = os.path.join(self.video_path, 'raw_video{}.mp4'.format(self._get_ymd()))
+        file_name2 = os.path.join(self.video_path, 'detected_video{}.mp4'.format(self._get_ymd()))
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         self.video_writer = cv2.VideoWriter(
             file_name, fourcc,
