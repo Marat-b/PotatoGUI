@@ -125,7 +125,7 @@ class HttpRequest():
             # print(f'get_check_dashboard res={res}')
             if res.status_code == 200:
                 r = res.json()
-                print(f'get_check_dashboard r={r["client"]}')
+                # print(f'get_check_dashboard r={r["client"]}')
                 return r
             else:
                 return None
