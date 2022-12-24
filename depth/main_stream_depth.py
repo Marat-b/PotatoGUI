@@ -32,7 +32,8 @@ class Detector(object):
         ).add_measurement(
             Measurement(1280, 72)
         ) \
-            .add_calculator(Calculator2([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]])) \
+            .add_calculator(Calculator2([['small', 0.0, 0.035], ['middle', 0.035, 0.08], ['big', 0.08, 1.0]],
+                                        count_frames=60)) \
             .add_class_names(self.class_names)
 
     def detect(self, image):
